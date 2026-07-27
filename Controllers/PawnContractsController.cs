@@ -164,6 +164,21 @@ namespace PhanMemCamDo.Controllers
             ModelState.Remove("CustomerId");
             ModelState.Remove("AssetId");
 
+            if (string.IsNullOrWhiteSpace(CCCD) || !System.Text.RegularExpressions.Regex.IsMatch(CCCD.Trim(), @"^\d{12}$"))
+            {
+                ModelState.AddModelError("CCCD", "Số CCCD/CMND là bắt buộc và phải đúng 12 chữ số!");
+            }
+
+            if (string.IsNullOrWhiteSpace(SDT) || !System.Text.RegularExpressions.Regex.IsMatch(SDT.Trim(), @"^\d{10}$"))
+            {
+                ModelState.AddModelError("SDT", "Số điện thoại là bắt buộc và phải đúng 10 chữ số!");
+            }
+
+            if (string.IsNullOrWhiteSpace(TenKhach))
+            {
+                ModelState.AddModelError("TenKhach", "Họ tên khách hàng là bắt buộc!");
+            }
+
             if (!ModelState.IsValid)
             {
                 return Content("Lỗi nhập liệu: " + string.Join("; ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
