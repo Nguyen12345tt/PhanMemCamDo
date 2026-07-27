@@ -1,4 +1,4 @@
-﻿using NuGet.ContentModel;
+using NuGet.ContentModel;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -16,7 +16,8 @@ namespace PhanMemCamDo.Models.Entities
         public string ?ContractCode { get; set; }
 
         // --- QUAN TRỌNG: TIỀN BẠC ---
-        [Required]
+        [Required(ErrorMessage = "Số tiền cầm là bắt buộc!")]
+        [Range(1, 1000000000000, ErrorMessage = "Số tiền cầm phải lớn hơn 0!")]
         [Column(TypeName = "decimal(18, 2)")]
         // 18 chữ số, 2 số thập phân. Đủ chứa hàng nghìn tỷ đồng mà không sai số.
         public decimal PawnAmount { get; set; }

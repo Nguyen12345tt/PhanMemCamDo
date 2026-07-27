@@ -179,6 +179,11 @@ namespace PhanMemCamDo.Controllers
                 ModelState.AddModelError("TenKhach", "Họ tên khách hàng là bắt buộc!");
             }
 
+            if (pawnContract.PawnAmount <= 0)
+            {
+                ModelState.AddModelError("PawnAmount", "Số tiền cầm là bắt buộc và phải lớn hơn 0!");
+            }
+
             if (!ModelState.IsValid)
             {
                 return Content("Lỗi nhập liệu: " + string.Join("; ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage)));
