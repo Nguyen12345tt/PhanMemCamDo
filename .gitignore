@@ -1,0 +1,23 @@
+## Ignore Visual Studio / .NET build artifacts
+[Bb]in/
+[Oo]bj/
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userossc
+*.sln.docstates
+
+## Database files
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+
+## Log files
+*.log
+
+## OS artifacts
+.DS_Store
+Thumbs.db
