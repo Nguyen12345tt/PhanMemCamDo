@@ -22,12 +22,12 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold">Số Điện Thoại <span class="text-danger">*</span></label>
-                                <input asp-for="PhoneNumber" class="form-control" placeholder="Nhập 10 số (VD: 0912345678)" required pattern="\d{10}" maxlength="10" title="Số điện thoại phải bao gồm đúng 10 chữ số" />
+                                <input asp-for="PhoneNumber" class="form-control" placeholder="Nhập 10 số (VD: 0912345678)" required inputmode="numeric" pattern="\d{10}" maxlength="10" title="Số điện thoại phải bao gồm đúng 10 chữ số" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
                                 <span asp-validation-for="PhoneNumber" class="text-danger"></span>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold">CCCD / CMND <span class="text-danger">*</span></label>
-                                <input asp-for="IdentityCard" class="form-control" placeholder="Nhập 12 số (VD: 001234567890)" required pattern="\d{12}" maxlength="12" title="Số CCCD phải bao gồm đúng 12 chữ số" />
+                                <input asp-for="IdentityCard" class="form-control" placeholder="Nhập 12 số (VD: 001234567890)" required inputmode="numeric" pattern="\d{12}" maxlength="12" title="Số CCCD phải bao gồm đúng 12 chữ số" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
                                 <span asp-validation-for="IdentityCard" class="text-danger"></span>
                             </div>
                         </div>

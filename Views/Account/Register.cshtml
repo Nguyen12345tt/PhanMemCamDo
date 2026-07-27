@@ -1,4 +1,4 @@
-﻿@model PhanMemCamDo.Models.ViewModels.RegisterVM
+@model PhanMemCamDo.Models.ViewModels.RegisterVM
 @{
     ViewData["Title"] = "Đăng Ký Tài Khoản";
 }
@@ -32,7 +32,7 @@
 
                     <div class="mb-3">
                         <label class="form-label">Số điện thoại</label>
-                        <input asp-for="PhoneNumber" class="form-control" placeholder="Ví dụ: 0987654321" />
+                        <input asp-for="PhoneNumber" class="form-control" placeholder="Nhập 10 số (Ví dụ: 0987654321)" inputmode="numeric" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
                         <span asp-validation-for="PhoneNumber" class="text-danger"></span>
                     </div>
 

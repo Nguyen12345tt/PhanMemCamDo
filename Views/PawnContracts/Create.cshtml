@@ -38,14 +38,16 @@
                                     <label class="form-label small fw-bold">Số Điện Thoại <span class="text-danger">*</span></label>
                                     <input type="text" name="SDT" class="form-control"
                                            placeholder="Nhập 10 số (VD: 0912345678)" required
-                                           pattern="\d{10}" maxlength="10" title="Số điện thoại phải bao gồm đúng 10 chữ số"
+                                           inputmode="numeric" pattern="\d{10}" maxlength="10" title="Số điện thoại phải bao gồm đúng 10 chữ số"
+                                           oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                            value="@(khachQuen?.PhoneNumber)" />
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label small fw-bold">Số CCCD / CMND <span class="text-danger">*</span></label>
                                     <input type="text" name="CCCD" class="form-control"
                                            placeholder="Nhập 12 số (VD: 001234567890)" required
-                                           pattern="\d{12}" maxlength="12" title="Số CCCD phải bao gồm đúng 12 chữ số"
+                                           inputmode="numeric" pattern="\d{12}" maxlength="12" title="Số CCCD phải bao gồm đúng 12 chữ số"
+                                           oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                            value="@(khachQuen?.IdentityCard)" />
                                 </div>
                             </div>
