@@ -1,0 +1,194 @@
+@model PhanMemCamDo.Models.Entities.PawnContract
+
+@{
+    ViewData["Title"] = "Thanh Lý Tài Sản";
+    var tongTienPhaiTra = (decimal)ViewBag.TongTienPhaiTra;
+    var tienLaiTichLuy = (decimal)ViewBag.TienLaiTichLuy;
+}
+
+<div class="container mt-4 mb-5" style="max-width: 900px;">
+    <!-- Breadcrumb & Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm mb-2">
+                <i class="fa-solid fa-arrow-left me-1"></i> Quay lại danh sách
+            </a>
+            <h3 class="text-danger fw-bold mb-0">
+                <i class="fa-solid fa-gavel me-2"></i> Thanh Lý Tài Sản Hợp Đồng: <span class="text-dark">@Model.ContractCode</span>
+            </h3>
+        </div>
+        <span class="badge bg-warning text-dark fs-6 px-3 py-2">
+            <i class="fa-solid fa-clock me-1"></i> Quá Hạn Cầm Đồ
+        </span>
+    </div>
+
+    <div class="row g-4">
+        <!-- Thông tin Hợp đồng & Tài sản -->
+        <div class="col-md-5">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-dark text-white fw-bold py-3">
+                    <i class="fa-solid fa-info-circle me-2 text-warning"></i> Thông Tin Hợp Đồng & Tài Sản
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush mb-3">
+                        <li class="list-group-item d-flex justify-content-between px-0 py-2">
+                            <span class="text-muted">Mã Hợp Đồng:</span>
+                            <span class="fw-bold text-primary">@Model.ContractCode</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between px-0 py-2">
+                            <span class="text-muted">Khách Hàng:</span>
+                            <span class="fw-bold">@Model.Customer?.FullName</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between px-0 py-2">
+                            <span class="text-muted">Số Điện Thoại:</span>
+                            <span>@Model.Customer?.PhoneNumber</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between px-0 py-2">
+                            <span class="text-muted">Tài Sản Cầm Cố:</span>
+                            <span class="fw-bold text-dark">@Model.Asset?.AssetName</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between px-0 py-2">
+                            <span class="text-muted">Loại Tài Sản:</span>
+                            <span>@(Model.Asset?.AssetCategory?.Name ?? "Chưa phân loại")</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between px-0 py-2">
+                            <span class="text-muted">Ngày Bắt Đầu:</span>
+                            <span>@Model.StartDate.ToString("dd/MM/yyyy")</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between px-0 py-2">
+                            <span class="text-muted">Ngày Hết Hạn:</span>
+                            <span class="text-danger fw-bold">@Model.EndDate.ToString("dd/MM/yyyy")</span>
+                        </li>
+                    </ul>
+
+                    <div class="p-3 bg-light rounded-3 border">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Số Tiền Cầm (Gốc):</span>
+                            <strong class="text-danger">@String.Format("{0:N0}", Model.PawnAmount) đ</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Lãi Tồn Tích Lũy:</span>
+                            <strong class="text-warning">@String.Format("{0:N0}", tienLaiTichLuy) đ</strong>
+                        </div>
+                        <hr class="my-2" />
+                        <div class="d-flex justify-content-between fs-6">
+                            <span class="fw-bold">Tổng Vốn + Lãi Dự Kiến:</span>
+                            <strong class="text-primary fs-5">@String.Format("{0:N0}", tongTienPhaiTra) đ</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Xử Lý Thanh Lý -->
+        <div class="col-md-7">
+            <div class="card shadow border-0">
+                <div class="card-header bg-danger text-white fw-bold py-3">
+                    <i class="fa-solid fa-calculator me-2"></i> Nhập Thông Tin Bán Thanh Lý
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="LiquidateConfirmed" method="post" id="liquidateForm">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.Id" />
+
+                        <!-- Giá bán thanh lý thực tế -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-dark fs-6">
+                                <i class="fa-solid fa-money-bill-wave me-1 text-success"></i> Giá Bán Thanh Lý Thực Tế (VNĐ) <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group input-group-lg">
+                                <input type="number" name="sellingPrice" id="sellingPrice" class="form-control fw-bold text-success" 
+                                       placeholder="Ví dụ: 12000000" min="0" step="10000" required 
+                                       value="@((long)tongTienPhaiTra)" oninput="calculateProfitLoss()" />
+                                <span class="input-group-text bg-light fw-bold">VNĐ</span>
+                            </div>
+                            <small class="text-muted">Gợi ý giá bán tối thiểu hòa vốn: <b>@String.Format("{0:N0}", tongTienPhaiTra) đ</b></small>
+                        </div>
+
+                        <!-- Card hiển thị Lãi / Lỗ realtime -->
+                        <div class="card bg-light border-0 mb-4" id="profitLossCard">
+                            <div class="card-body py-3">
+                                <div class="row text-center">
+                                    <div class="col-6 border-end">
+                                        <small class="text-muted d-block mb-1">Thu Hồi Tiền Gốc</small>
+                                        <h5 class="fw-bold text-dark mb-0">@String.Format("{0:N0}", Model.PawnAmount) đ</h5>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted d-block mb-1" id="profitLossTitle">Lãi / Lỗ Thực Thu</small>
+                                        <h5 class="fw-bold text-success mb-0" id="profitLossValue">0 đ</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ghi chú thanh lý -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-dark">
+                                <i class="fa-solid fa-comment-dots me-1 text-primary"></i> Ghi Chú / Khách Hàng Mua Thanh Lý
+                            </label>
+                            <textarea name="note" class="form-control" rows="3" placeholder="Nhập tên người mua, SĐT hoặc tình trạng bán thanh lý..."></textarea>
+                        </div>
+
+                        <!-- Thông báo lưu ý -->
+                        <div class="alert alert-warning d-flex align-items-center mb-4" role="alert">
+                            <i class="fa-solid fa-triangle-exclamation fa-2x me-3"></i>
+                            <div class="small">
+                                <b>Lưu ý quan trọng:</b> Sau khi xác nhận thanh lý, hợp đồng sẽ chuyển trạng thái sang <b>Đã Thanh Lý</b> và toàn bộ số tiền bán thực tế sẽ tự động hạch toán vào <b>Sổ Quỹ Thu</b>.
+                            </div>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="d-flex justify-content-end gap-2">
+                            <a asp-action="Index" class="btn btn-light btn-lg border px-4">
+                                Hủy Bỏ
+                            </a>
+                            <button type="submit" class="btn btn-danger btn-lg fw-bold px-4 shadow">
+                                <i class="fa-solid fa-check-circle me-1"></i> Xác Nhận Thanh Lý
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    const gocVay = @Model.PawnAmount;
+    const tongVonLai = @tongTienPhaiTra;
+
+    function calculateProfitLoss() {
+        const inputVal = parseFloat(document.getElementById('sellingPrice').value) || 0;
+        const profitLossVal = inputVal - tongVonLai;
+
+        const valueElem = document.getElementById('profitLossValue');
+        const titleElem = document.getElementById('profitLossTitle');
+        const cardElem = document.getElementById('profitLossCard');
+
+        const formattedVal = new Intl.NumberFormat('vi-VN').format(Math.abs(profitLossVal)) + ' đ';
+
+        if (profitLossVal > 0) {
+            titleElem.innerText = 'Lãi Thêm (Dư So Với Tính Toán)';
+            titleElem.className = 'text-success d-block mb-1';
+            valueElem.innerText = '+' + formattedVal;
+            valueElem.className = 'fw-bold text-success mb-0';
+            cardElem.className = 'card bg-success bg-opacity-10 border-success mb-4';
+        } else if (profitLossVal < 0) {
+            titleElem.innerText = 'Thâm Hụt / Thất Thu Lãi';
+            titleElem.className = 'text-danger d-block mb-1';
+            valueElem.innerText = '-' + formattedVal;
+            valueElem.className = 'fw-bold text-danger mb-0';
+            cardElem.className = 'card bg-danger bg-opacity-10 border-danger mb-4';
+        } else {
+            titleElem.innerText = 'Thu Đúng Chuẩn (Gốc + Lãi)';
+            titleElem.className = 'text-primary d-block mb-1';
+            valueElem.innerText = '0 đ';
+            valueElem.className = 'fw-bold text-primary mb-0';
+            cardElem.className = 'card bg-light border-0 mb-4';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', calculateProfitLoss);
+</script>
+}
