@@ -1,0 +1,190 @@
+@using PhanMemCamDo.Models.Enums
+@model PhanMemCamDo.Models.Entities.PawnContract
+
+@{
+    ViewData["Title"] = "Tạo Hợp Đồng Mới";
+    // Lấy thông tin khách quen nếu có (từ chức năng Cầm Thêm)
+    var khachQuen = ViewBag.KhachQuen as PhanMemCamDo.Models.Entities.Customer;
+}
+
+<div class="container mt-4">
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-success text-white">
+            <h3 class="mb-0"><i class="fa-solid fa-file-contract"></i> Lập Hợp Đồng Cầm Đồ</h3>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create" method="post">
+                <div class="row">
+                    <div class="col-md-6 border-end">
+                        <h5 class="text-primary border-bottom pb-2">1. Thông Tin Khách & Tài Sản</h5>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Mã Hợp Đồng</label>
+                            <input asp-for="ContractCode" class="form-control fw-bold text-primary" placeholder="Tự động sinh mã (VD: HD0001)" />
+                            <span asp-validation-for="ContractCode" class="text-danger"></span>
+                            <small class="text-muted fst-italic">Hệ thống đã tự gợi ý mã thứ tự <b>HD000x</b>. Bạn có thể giữ nguyên hoặc tự thay đổi.</small>
+                        </div>
+
+                        <div class="card bg-info bg-opacity-10 border-info border-opacity-25 p-3 mb-3">
+                            <h6 class="text-primary fw-bold mb-2"><i class="fa-solid fa-user-plus"></i> Thông Tin Khách Hàng</h6>
+                            <div class="row g-2">
+                                <div class="col-md-12">
+                                    <label class="form-label small fw-bold">Họ Tên Khách <span class="text-danger">*</span></label>
+                                    <input type="text" name="TenKhach" class="form-control fw-bold"
+                                           placeholder="Nhập tên khách..." required
+                                           value="@(khachQuen?.FullName)" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-bold">Số Điện Thoại</label>
+                                    <input type="text" name="SDT" class="form-control"
+                                           placeholder="09xxxx..." required
+                                           value="@(khachQuen?.PhoneNumber)" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-bold">Số CCCD / CMND</label>
+                                    <input type="text" name="CCCD" class="form-control"
+                                           placeholder="Số CCCD..." required
+                                           value="@(khachQuen?.IdentityCard)" />
+                                </div>
+                            </div>
+                            @if (khachQuen != null)
+                            {
+                                <div class="alert alert-success small py-1 mt-2 mb-0">
+                                    <i class="fa-solid fa-check-circle"></i> Khách quen: <b>@khachQuen.FullName</b>
+                                </div>
+                            }
+                        </div>
+
+                        <div class="card bg-light border-0 p-3 mb-3">
+                            <h6 class="text-primary fw-bold mb-2"><i class="fa-solid fa-box"></i> Thông Tin Tài Sản</h6>
+
+                            <div class="mb-2">
+                                <label class="form-label small fw-bold">Loại Tài Sản</label>
+                                <select name="AssetCategoryId" class="form-select" asp-items="ViewBag.AssetCategoryId">
+                                    <option value="">-- Chọn loại tài sản --</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-2">
+                                <label class="form-label small fw-bold">Tên Tài Sản <span class="text-danger">*</span></label>
+                                <input type="text" name="TenTaiSan" class="form-control fw-bold" placeholder="VD: Xe máy Vision 2023..." required />
+                            </div>
+                            <div class="mb-0">
+                                <label class="form-label small fw-bold">Mô Tả / Tình Trạng</label>
+                                <textarea name="MoTaTaiSan" class="form-control" rows="2" placeholder="VD: Mới 99%, có xước nhẹ..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h5 class="text-danger border-bottom pb-2">2. Khoản Vay & Lãi Suất</h5>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Số Tiền Cầm (VNĐ)</label>
+                            <input asp-for="PawnAmount" type="text" id="PawnAmount"
+                                   class="form-control form-control-lg fw-bold text-danger"
+                                   placeholder="Gõ số tiền (VD: 5000k hoặc 5.000.000)..."
+                                   value="@(Model?.PawnAmount > 0 ? Model.PawnAmount.ToString("N0") : "")"
+                                   oninput="ShowPreview(this)"
+                                   onblur="FormatCurrency(this)"
+                                   onfocus="RemoveFormat(this)"
+                                   autocomplete="off" />
+
+                            <div id="moneyPreview" class="form-text fw-bold text-success mt-1" style="display:none;">
+                                <i class="fa-solid fa-calculator"></i> Tương đương: <span id="previewValue">0</span> đ
+                            </div>
+                            <span asp-validation-for="PawnAmount" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Lãi Suất (%)</label>
+
+                            <input asp-for="InterestRate" class="form-control fw-bold text-primary"
+                                   value="@ViewBag.LaiSuatGoiY"
+                                   placeholder="Nhập % lãi..." required />
+
+                            <span asp-validation-for="InterestRate" class="text-danger"></span>
+                            <small class="text-muted fst-italic">Tự động gợi ý từ Cấu hình hệ thống.</small>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-6">
+                                <label class="form-label">Ngày Bắt Đầu</label>
+                                <input asp-for="StartDate" class="form-control" type="datetime-local" value="@Model?.StartDate.ToString("yyyy-MM-ddTHH:mm")" />
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">Ngày Kết Thúc</label>
+                                <input asp-for="EndDate" class="form-control" type="datetime-local" value="@Model?.EndDate.ToString("yyyy-MM-ddTHH:mm")" />
+                                <small class="text-muted fst-italic">Mặc định cộng 1 tháng</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 text-center">
+                    <button type="submit" class="btn btn-success btn-lg px-5 shadow">
+                        <i class="fa-solid fa-check"></i> Hoàn Tất Hợp Đồng
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary ms-3">Hủy Bỏ</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        // --- LOGIC NHẬP TIỀN THÔNG MINH ---
+        function ShowPreview(input) {
+            let value = input.value;
+            let previewBox = document.getElementById("moneyPreview");
+            let previewSpan = document.getElementById("previewValue");
+
+            if (!value) {
+                previewBox.style.display = "none";
+                return;
+            }
+
+            let number = parseFloat(value.replace(/,/g, '').replace(/\./g, ''));
+            if (isNaN(number)) {
+                previewBox.style.display = "none";
+                return;
+            }
+
+            if (number < 10) number = number * 10000;
+            else if (number >= 10 && number < 1000) number = number * 1000;
+
+            previewBox.style.display = "block";
+            previewSpan.innerText = number.toLocaleString('vi-VN');
+        }
+
+        function FormatCurrency(input) {
+            let value = input.value;
+            if (!value) return;
+            let number = parseFloat(value.replace(/,/g, '').replace(/\./g, ''));
+            if (isNaN(number)) return;
+
+            if (number < 10) number = number * 10000;
+            else if (number >= 10 && number < 1000) number = number * 1000;
+
+            input.value = number.toLocaleString('vi-VN');
+            document.getElementById("moneyPreview").style.display = "none";
+        }
+
+        function RemoveFormat(input) {
+            let value = input.value;
+            if (value) input.value = value.replace(/\./g, '');
+        }
+
+        // Trước khi submit, xóa dấu chấm để gửi số nguyên lên Server
+        $("form").submit(function () {
+            let input = $("#PawnAmount");
+            let value = input.val();
+            input.val(value.replace(/\./g, ''));
+        });
+    </script>
+}
