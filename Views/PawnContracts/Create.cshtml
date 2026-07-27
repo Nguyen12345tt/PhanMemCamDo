@@ -83,20 +83,24 @@
                     <div class="col-md-6">
                         <h5 class="text-danger border-bottom pb-2">2. Khoản Vay & Lãi Suất</h5>
 
-                        <div class="mb-3">
+                        <div class="mb-3 position-relative">
                             <label class="form-label fw-bold">Số Tiền Cầm (VNĐ) <span class="text-danger">*</span></label>
                             <input asp-for="PawnAmount" type="text" id="PawnAmount"
                                    class="form-control form-control-lg fw-bold text-danger"
-                                   placeholder="Gõ số tiền (VD: 5000k hoặc 5.000.000)..." required
+                                   placeholder="Gõ số (VD: gõ 5 hoặc 50)..." required
                                    value="@(Model?.PawnAmount > 0 ? Model.PawnAmount.ToString("N0") : "")"
-                                   oninput="ShowPreview(this)"
-                                   onblur="FormatCurrency(this)"
-                                   onfocus="RemoveFormat(this)"
+                                   oninput="OnMoneyInput(this)"
+                                   onblur="HideSuggestionsDelay()"
                                    autocomplete="off" />
 
-                            <div id="moneyPreview" class="form-text fw-bold text-success mt-1" style="display:none;">
-                                <i class="fa-solid fa-calculator"></i> Tương đương: <span id="previewValue">0</span> đ
+                            <!-- Gợi ý chọn nhanh số tiền -->
+                            <div id="moneySuggestions" class="dropdown-menu shadow-lg border-0 w-100 rounded-3 mt-1 p-2" style="display:none; position: absolute; z-index: 1050;">
+                                <div class="small text-muted fw-bold px-2 py-1 border-bottom mb-1">
+                                    <i class="fa-solid fa-wand-magic-sparkles text-primary me-1"></i> Click chọn nhanh số tiền:
+                                </div>
+                                <div id="suggestionsList" class="d-flex flex-column gap-1"></div>
                             </div>
+
                             <span asp-validation-for="PawnAmount" class="text-danger"></span>
                         </div>
 
@@ -142,53 +146,74 @@
     }
 
     <script>
-        // --- LOGIC NHẬP TIỀN THÔNG MINH ---
-        function ShowPreview(input) {
-            let value = input.value;
-            let previewBox = document.getElementById("moneyPreview");
-            let previewSpan = document.getElementById("previewValue");
+        // --- GỢI Ý CHỌN NHANH SỐ TIỀN THÔNG MINH TIỆM CẦM ĐỒ ---
+        function OnMoneyInput(input) {
+            let rawStr = input.value.replace(/[^0-9]/g, '');
+            let suggestionsMenu = document.getElementById("moneySuggestions");
+            let suggestionsList = document.getElementById("suggestionsList");
 
-            if (!value) {
-                previewBox.style.display = "none";
+            if (!rawStr || parseInt(rawStr) <= 0) {
+                suggestionsMenu.style.display = "none";
                 return;
             }
 
-            let number = parseFloat(value.replace(/,/g, '').replace(/\./g, ''));
-            if (isNaN(number)) {
-                previewBox.style.display = "none";
-                return;
+            let num = parseInt(rawStr);
+            let multipliers = [1000, 10000, 100000, 1000000, 10000000];
+            let items = [];
+
+            multipliers.forEach(m => {
+                let val = num * m;
+                if (val <= 100000000000) {
+                    let labelText = formatMoneyText(val);
+                    items.push(`
+                        <button type="button" class="dropdown-item py-2 px-3 rounded text-start fw-bold text-dark border-0 hover-bg-light"
+                                onmousedown="SelectMoney('${val}')">
+                            <i class="fa-solid fa-coins text-warning me-2"></i>
+                            <span class="fs-6 text-danger">${val.toLocaleString('vi-VN')} đ</span>
+                            <span class="badge bg-primary bg-opacity-10 text-primary ms-2">${labelText}</span>
+                        </button>
+                    `);
+                }
+            });
+
+            suggestionsList.innerHTML = items.join('');
+            suggestionsMenu.style.display = "block";
+        }
+
+        function formatMoneyText(val) {
+            if (val >= 1000000000) {
+                return (val / 1000000000).toLocaleString('vi-VN') + " tỷ";
             }
-
-            if (number < 10) number = number * 10000;
-            else if (number >= 10 && number < 1000) number = number * 1000;
-
-            previewBox.style.display = "block";
-            previewSpan.innerText = number.toLocaleString('vi-VN');
+            if (val >= 1000000) {
+                return (val / 1000000).toLocaleString('vi-VN') + " triệu";
+            }
+            if (val >= 1000) {
+                return (val / 1000).toLocaleString('vi-VN') + "k (nghìn)";
+            }
+            return val + " đ";
         }
 
-        function FormatCurrency(input) {
-            let value = input.value;
-            if (!value) return;
-            let number = parseFloat(value.replace(/,/g, '').replace(/\./g, ''));
-            if (isNaN(number)) return;
-
-            if (number < 10) number = number * 10000;
-            else if (number >= 10 && number < 1000) number = number * 1000;
-
-            input.value = number.toLocaleString('vi-VN');
-            document.getElementById("moneyPreview").style.display = "none";
+        function SelectMoney(val) {
+            let num = parseFloat(val);
+            let input = document.getElementById("PawnAmount");
+            input.value = num.toLocaleString('vi-VN');
+            document.getElementById("moneySuggestions").style.display = "none";
         }
 
-        function RemoveFormat(input) {
-            let value = input.value;
-            if (value) input.value = value.replace(/\./g, '');
+        function HideSuggestionsDelay() {
+            setTimeout(function() {
+                let suggestionsMenu = document.getElementById("moneySuggestions");
+                if (suggestionsMenu) suggestionsMenu.style.display = "none";
+            }, 250);
         }
 
-        // Trước khi submit, xóa dấu chấm để gửi số nguyên lên Server
+        // Tự động chuyển đổi thành số thuần túy trước khi submit form
         $("form").submit(function () {
             let input = $("#PawnAmount");
-            let value = input.val();
-            input.val(value.replace(/\./g, ''));
+            let digitsOnly = input.val().replace(/[^0-9]/g, '');
+            if (digitsOnly) {
+                input.val(digitsOnly);
+            }
         });
     </script>
 }
