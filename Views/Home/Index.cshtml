@@ -1,0 +1,198 @@
+﻿@model PhanMemCamDo.Models.ViewModels.DashboardVM
+@{
+    ViewData["Title"] = "Bảng Điều Khiển";
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-primary fw-bold"><i class="fa-solid fa-chart-line"></i> Tổng Quan Kinh Doanh</h2>
+            <p class="text-muted">Chào mừng quay trở lại, hệ thống đang hoạt động ổn định.</p>
+        </div>
+        <a asp-controller="PawnContracts" asp-action="Create" class="btn btn-success btn-lg shadow">
+            <i class="fa-solid fa-plus-circle"></i> Tạo Hợp Đồng Mới
+        </a>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white h-100 shadow-sm">
+                <div class="card-body">
+                    <h6 class="card-title text-uppercase mb-2">💰 Vốn Đang Cho Vay</h6>
+                    <h3 class="fw-bold">@Model.TotalLoanAmount.ToString("N0") đ</h3>
+                    <small class="text-white-50">Tổng tiền gốc đang nằm ở khách</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card bg-success text-white h-100 shadow-sm">
+                <div class="card-body">
+                    <h6 class="card-title text-uppercase mb-2">📄 Hợp Đồng Đang Chạy</h6>
+                    <h3 class="fw-bold">@Model.ActiveContracts</h3>
+                    <small class="text-white-50">Khách đang cầm đồ</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card bg-danger text-white h-100 shadow-sm">
+                <div class="card-body">
+                    <h6 class="card-title text-uppercase mb-2">⚠️ Sắp Đến Hạn</h6>
+                    <h3 class="fw-bold">@Model.ContractsDueSoon</h3>
+                    <small class="text-white-50">Hợp đồng hết hạn trong 3 ngày tới</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card bg-info text-white h-100 shadow-sm">
+                <div class="card-body">
+                    <h6 class="card-title text-uppercase mb-2">👥 Khách Hàng</h6>
+                    <h3 class="fw-bold">@Model.TotalCustomers</h3>
+                    <small class="text-white-50">Tổng số khách trong hệ thống</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h5 class="mb-0 fw-bold text-dark">📌 5 Giao Dịch Mới Nhất</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0 align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Mã HĐ</th>
+                                    <th>Khách Hàng</th>
+                                    <th>Tài Sản</th>
+                                    <th>Số Tiền</th>
+                                    <th>Ngày Cầm</th>
+                                    <th>Trạng Thái</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.RecentContracts.Count == 0)
+                                {
+                                    <tr>
+                                        <td colspan="6" class="text-center py-4 text-muted">Chưa có giao dịch nào</td>
+                                    </tr>
+                                }
+                                @foreach (var item in Model.RecentContracts)
+                                {
+                                    <tr>
+                                        <td class="fw-bold text-primary">
+                                            <a asp-controller="PawnContracts" asp-action="Details" asp-route-id="@item.Id" class="text-decoration-none">
+                                                @item.ContractCode
+                                            </a>
+                                        </td>
+                                        <td>@(item.Customer != null ? item.Customer.FullName : "N/A")</td>
+                                        <td>@(item.Asset != null ? item.Asset.AssetName : "N/A")</td>
+                                        <td class="fw-bold text-danger">@item.PawnAmount.ToString("N0") đ</td>
+                                        <td>@item.StartDate.ToString("dd/MM/yyyy")</td>
+                                        <td>
+                                            @if (item.Status == PhanMemCamDo.Models.Enums.ContractStatus.Active)
+                                            {
+                                                <span class="badge bg-success">Đang Hoạt Động</span>
+                                            }
+                                            else if (item.Status == PhanMemCamDo.Models.Enums.ContractStatus.Redeemed)
+                                            {
+
+                                                <span class="badge bg-secondary">Đã Chuộc</span>
+                                            }
+                                            else if (item.Status == PhanMemCamDo.Models.Enums.ContractStatus.Overdue)
+                                            {
+
+                                                <span class="badge bg-danger">Quá Hạn</span>
+                                            }
+                                            else
+                                            {
+
+                                                <span class="badge bg-dark">Đã Thanh Lý</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer bg-white text-center">
+                    <a asp-controller="PawnContracts" asp-action="Index" class="text-decoration-none fw-bold">Xem tất cả hợp đồng <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white py-3 border-bottom d-flex flex-row align-items-center justify-content-between">
+                    <h5 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-chart-pie text-primary me-2"></i> Tỷ Lệ Hợp Đồng</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-pie pt-4 pb-2" style="height: 300px; position: relative;">
+                        <canvas id="statusPieChart"></canvas>
+                    </div>
+                    <div class="mt-4 text-center small">
+                        <span class="me-2"><i class="fa-solid fa-circle text-success"></i> Đang cầm</span>
+                        <span class="me-2"><i class="fa-solid fa-circle text-secondary"></i> Đã chuộc</span><br />
+                        <span class="me-2"><i class="fa-solid fa-circle text-danger"></i> Quá hạn</span>
+                        <span class="me-2"><i class="fa-solid fa-circle text-dark"></i> Thanh lý</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // 1. Lấy dữ liệu từ ViewBag do Controller ném sang
+            var activeData = Number('@(ViewBag.ActiveCount ?? 0)');
+            var redeemedData = Number('@(ViewBag.RedeemedCount ?? 0)');
+            var overdueData = Number('@(ViewBag.OverdueCount ?? 0)');
+            var liquidatedData = Number('@(ViewBag.LiquidatedCount ?? 0)');
+
+            // 2. Tìm cái thẻ canvas có id là statusPieChart
+            var ctx = document.getElementById("statusPieChart");
+
+            // 3. Khởi tạo biểu đồ tròn (doughnut)
+            var totalData = activeData + redeemedData + overdueData + liquidatedData;
+
+            if (ctx && totalData > 0) {
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ["Đang hoạt động", "Đã chuộc", "Quá hạn", "Đã thanh lý"],
+                        datasets: [{
+                            data: [activeData, redeemedData, overdueData, liquidatedData],
+                            // Màu sắc tương ứng với 4 trạng thái
+                            backgroundColor: ['#198754', '#6c757d', '#dc3545', '#212529'],
+                            hoverBackgroundColor: ['#146c43', '#5c636a', '#b02a37', '#1a1d20'],
+                            hoverBorderColor: "rgba(234, 236, 244, 1)",
+                        }],
+                    },
+                    options: {
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false // Tắt phần chú thích mặc định của Chart.js vì đã tự code HTML ở trên
+                            }
+                        },
+                        cutout: '65%', // Làm rỗng ruột biểu đồ 65% để nhìn hiện đại hơn
+                    },
+                });
+            } 
+            else if(ctx) {
+                // Nếu không có dữ liệu nào, hiển thị một thông báo thay vì biểu đồ
+                ctx.parentElement.innerHTML = '<div class="d-flex align-items-center justify-content-center h-100 text-muted">Chưa có dữ liệu thống kê</div>';
+            }
+        });
+    </script>
+}

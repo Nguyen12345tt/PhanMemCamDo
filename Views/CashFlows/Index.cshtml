@@ -1,0 +1,70 @@
+﻿@using PhanMemCamDo.Models.Enums
+@model IEnumerable<PhanMemCamDo.Models.Entities.CashFlow>
+
+@{
+    ViewData["Title"] = "Sổ Quỹ Tiền Mặt";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="text-primary fw-bold"><i class="fa-solid fa-wallet"></i> Sổ Quỹ Tiền Mặt</h2>
+        <a asp-action="Create" class="btn btn-primary shadow">
+            <i class="fa-solid fa-plus"></i> Lập Phiếu Thu/Chi
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="bg-light text-secondary">
+                    <tr>
+                        <th class="ps-3">Ngày GD</th>
+                        <th>Loại Phiếu</th>
+                        <th>Số Tiền</th>
+                        <th>Lý Do / Nội Dung</th>
+                        <th>Người Lập</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="ps-3">@item.Date.ToString("dd/MM/yyyy HH:mm")</td>
+
+                            <td>
+                                @if (item.FlowType == CashFlowType.Income)
+                                {
+                                    <span class="badge bg-success bg-opacity-10 text-success border border-success px-3">
+                                        <i class="fa-solid fa-arrow-down"></i> Thu Vào
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger bg-opacity-10 text-danger border border-danger px-3">
+                                        <i class="fa-solid fa-arrow-up"></i> Chi Ra
+                                    </span>
+                                }
+                            </td>
+
+                            <td class="fw-bold fs-5 @(item.FlowType == CashFlowType.Income ? "text-success" : "text-danger")">
+                                @(item.FlowType == CashFlowType.Income ? "+" : "-")@item.Amount.ToString("N0") đ
+                            </td>
+
+                            <td class="text-muted">@item.Description</td>
+
+                            <td class="small fst-italic">@item.UserName</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            @if (!Model.Any())
+            {
+                <div class="text-center py-5 text-muted">
+                    <i class="fa-solid fa-box-open fa-3x mb-3"></i><br>
+                    Sổ quỹ đang trống. Hãy lập phiếu thu/chi đầu tiên!
+                </div>
+            }
+        </div>
+    </div>
+</div>

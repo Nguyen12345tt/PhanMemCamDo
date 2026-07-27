@@ -1,0 +1,72 @@
+﻿@model IEnumerable<PhanMemCamDo.Models.Entities.PaymentHistory>
+@using PhanMemCamDo.Models.Enums
+
+@{
+    ViewData["Title"] = "Lịch Sử Đóng Tiền";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="text-primary fw-bold"><i class="fa-solid fa-history"></i> Lịch Sử Đóng Tiền</h3>
+
+        <a asp-action="Create" class="btn btn-success shadow">
+            <i class="fa-solid fa-plus"></i> Thu Tiền Mới
+        </a>
+    </div>
+
+    <div class="card shadow border-0">
+        <div class="card-body p-0">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-3">Ngày Thu</th>
+                        <th>Hợp Đồng</th>
+                        <th>Khách Hàng</th>
+                        <th>Loại</th>
+                        <th class="text-end">Số Tiền</th>
+                        <th>Ghi Chú</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="ps-3">@item.PaymentDate.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td class="fw-bold text-primary">@item.PawnContract?.ContractCode</td>
+                            <td>@item.PawnContract?.Customer?.FullName</td>
+                            <td>
+                                @if (item.PaymentType == PaymentType.Interest)
+                                {
+                                    <span class="badge bg-info text-dark">Đóng Lãi</span>
+                                }
+                                else if (item.PaymentType == PaymentType.Principal)
+                                {
+                                    <span class="badge bg-warning text-dark">Trả Gốc</span>
+                                }
+                                else if (item.PaymentType == PaymentType.Redeem)
+                                {
+                                    <span class="badge bg-success">Chuộc Đồ</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Khác</span>
+                                }
+                            </td>
+                            <td class="text-end fw-bold text-success">
+                                +@item.Amount.ToString("N0") đ
+                            </td>
+                            <td class="text-muted small fst-italic">@item.Note</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            @if (!Model.Any())
+            {
+                <div class="text-center py-5 text-muted">
+                    <i class="fa-solid fa-folder-open fa-3x mb-3"></i><br>
+                    Chưa có giao dịch nào. Bấm nút <b>"Thu Tiền Mới"</b> để bắt đầu.
+                </div>
+            }
+        </div>
+    </div>
+</div>

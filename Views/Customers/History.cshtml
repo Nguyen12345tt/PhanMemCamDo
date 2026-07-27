@@ -1,0 +1,71 @@
+﻿@model PhanMemCamDo.Models.Entities.Customer
+
+@{
+    ViewData["Title"] = "Lịch Sử Giao Dịch";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="fw-bold text-primary mb-1">@Model.FullName</h4>
+                <p class="mb-0 text-muted">
+                    <i class="fa-solid fa-phone me-1"></i> @Model.PhoneNumber
+                    <span class="mx-2">|</span>
+                    <i class="fa-solid fa-id-card me-1"></i> @Model.IdentityCard
+                </p>
+            </div>
+            <a asp-action="Index" class="btn btn-outline-secondary">Quay Lại Danh Sách</a>
+        </div>
+    </div>
+
+    <h5 class="fw-bold text-secondary mb-3"><i class="fa-solid fa-clock-rotate-left"></i> Lịch Sử Cầm Đồ (@Model.PawnContracts.Count)</h5>
+
+    @if (Model.PawnContracts.Any())
+    {
+        <div class="table-responsive card shadow border-0">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light text-uppercase small fw-bold">
+                    <tr>
+                        <th>Mã HĐ</th>
+                        <th>Tài Sản</th>
+                        <th>Ngày Cầm</th>
+                        <th>Số Tiền</th>
+                        <th>Trạng Thái</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var hd in Model.PawnContracts.OrderByDescending(c => c.StartDate))
+                    {
+                        <tr>
+                            <td class="fw-bold text-primary">@hd.ContractCode</td>
+                            <td>@hd.Asset?.AssetName</td>
+                            <td>@hd.StartDate.ToString("dd/MM/yyyy")</td>
+                            <td class="fw-bold text-danger">@hd.PawnAmount.ToString("N0")đ</td>
+                            <td>
+                                @if (hd.Status == PhanMemCamDo.Models.Enums.ContractStatus.Active)
+                                {
+                                    <span class="badge bg-success">Đang vay</span>
+                                }
+                                else if (hd.Status == PhanMemCamDo.Models.Enums.ContractStatus.Redeemed)
+                                {
+                                    <span class="badge bg-secondary">Đã chuộc</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Quá hạn</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info text-center">
+            Khách hàng này chưa có hợp đồng nào.
+        </div>
+    }
+</div>

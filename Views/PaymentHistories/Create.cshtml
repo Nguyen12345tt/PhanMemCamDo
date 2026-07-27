@@ -1,0 +1,178 @@
+﻿@using PhanMemCamDo.Models.Enums
+@model PhanMemCamDo.Models.Entities.PaymentHistory
+
+@{
+    ViewData["Title"] = "Thu Tiền Khách";
+    var contract = ViewBag.SelectedContract as PhanMemCamDo.Models.Entities.PawnContract;
+    // Lấy ngày kết thúc hiện tại để JS dùng
+    var currentEndDate = contract?.EndDate.ToString("yyyy-MM-ddTHH:mm") ?? DateTime.Now.ToString("yyyy-MM-ddTHH:mm");
+}
+
+<div class="container mt-4">
+    <div class="card shadow border-0" style="max-width: 600px; margin: auto;">
+        <div class="card-header bg-success text-white text-center">
+            <h4 class="mb-0"><i class="fa-solid fa-hand-holding-dollar"></i> THU TIỀN KHÁCH HÀNG</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create" method="post">
+
+                @if (contract != null)
+                {
+                    <input type="hidden" asp-for="PawnContractId" value="@contract.Id" />
+                    <input type="hidden" id="CurrentEndDateVal" value="@currentEndDate" />
+
+                    <div class="alert alert-info shadow-sm">
+                        <div class="row">
+                            <div class="col-6">
+                                <small class="text-muted">Hợp đồng:</small><br />
+                                <strong>@contract.ContractCode</strong>
+                            </div>
+                            <div class="col-6 text-end">
+                                <small class="text-muted">Gốc đang nợ:</small><br />
+                                <span class="text-danger fw-bold fs-5">@string.Format("{0:N0}", contract.PawnAmount) đ</span>
+                            </div>
+                        </div>
+                        <hr class="my-2" />
+                        <div>
+                            <small class="text-muted">Khách hàng:</small> <b>@contract.Customer?.FullName</b>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Chọn Hợp Đồng</label>
+                        <select asp-for="PawnContractId" class="form-select" asp-items="ViewBag.PawnContractId" onchange="this.form.submit()">
+                            <option value="">-- Chọn hợp đồng --</option>
+                        </select>
+                        <small class="text-muted fst-italic">* Chọn hợp đồng để xem thông tin chi tiết</small>
+                    </div>
+                }
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Loại Giao Dịch</label>
+                    <select asp-for="PaymentType" class="form-select" asp-items="Html.GetEnumSelectList<PaymentType>()" id="PaymentTypeSelect">
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold text-success">Số Tiền Thu (VNĐ)</label>
+                    <input asp-for="Amount" class="form-control form-control-lg fw-bold text-success"
+                           value="@(ViewBag.SuggestedAmount != null ? ((decimal)ViewBag.SuggestedAmount).ToString("N0") : "")"
+                           placeholder="Nhập số tiền..." required />
+                    <span asp-validation-for="Amount" class="text-danger"></span>
+                </div>
+
+                <div class="card bg-light border-0 mb-3" id="ExtensionSection" style="display:none;">
+                    <div class="card-body p-3">
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="IsExtendCheckbox">
+                            <label class="form-check-label fw-bold text-primary" for="IsExtendCheckbox">
+                                Có gia hạn thêm ngày không?
+                            </label>
+                        </div>
+
+                        <div id="AutoExtendArea" style="display:none;">
+                            <div class="input-group mb-2">
+                                <span class="input-group-text bg-white"><i class="fa-solid fa-calendar-plus text-primary"></i></span>
+                                <input type="number" name="AutoExtendDays" id="AutoExtendDays" class="form-control" value="30" placeholder="Số ngày..." />
+                                <span class="input-group-text">ngày</span>
+                            </div>
+
+                            <div class="d-flex justify-content-between small border-top pt-2 mt-2">
+                                <div class="text-muted">
+                                    Hạn cũ:<br>
+                                    <span class="fw-bold">@contract?.EndDate.ToString("dd/MM/yyyy")</span>
+                                </div>
+                                <div class="text-end">
+                                    <i class="fa-solid fa-arrow-right text-primary"></i> Hạn MỚI:<br>
+                                    <span class="fw-bold text-primary" id="NewEndDateDisplay">...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Ghi Chú</label>
+                    <textarea asp-for="Note" class="form-control" rows="2" placeholder="Ví dụ: Đóng lãi tháng 1..."></textarea>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="fa-solid fa-check"></i> XÁC NHẬN THU TIỀN
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function() {
+            // Hàm xử lý hiển thị
+            function updateUI() {
+                var type = $("#PaymentTypeSelect").val();
+
+                // 1. Chỉ hiện khung Gia hạn nếu chọn "Đóng Lãi" (Value = 1)
+                if (type == "1") {
+                    $("#ExtensionSection").slideDown();
+                } else {
+                    $("#ExtensionSection").slideUp();
+                    $("#IsExtendCheckbox").prop('checked', false); // Bỏ tích nếu đổi loại khác
+                    toggleExtendInput();
+                }
+            }
+
+            // Hàm xử lý ẩn/hiện ô nhập ngày
+            function toggleExtendInput() {
+                if ($("#IsExtendCheckbox").is(":checked")) {
+                    $("#AutoExtendArea").slideDown();
+                    calculateNewDate(); // Tính ngày ngay khi hiện
+                } else {
+                    $("#AutoExtendArea").slideUp();
+                    // Khi ẩn đi thì set giá trị về 0 để Controller không cộng ngày
+                    $("#AutoExtendDays").val(0);
+                }
+            }
+
+            // Hàm tính toán ngày mới (Review trước cho khách xem)
+            function calculateNewDate() {
+                var days = parseInt($("#AutoExtendDays").val()) || 0;
+                var currentStr = $("#CurrentEndDateVal").val();
+                if(currentStr && days > 0) {
+                    var date = new Date(currentStr);
+                    date.setDate(date.getDate() + days);
+
+                    // Format sang dd/MM/yyyy
+                    var day = ("0" + date.getDate()).slice(-2);
+                    var month = ("0" + (date.getMonth() + 1)).slice(-2);
+                    var year = date.getFullYear();
+
+                    $("#NewEndDateDisplay").text(day + "/" + month + "/" + year);
+                } else {
+                    $("#NewEndDateDisplay").text("Không đổi");
+                }
+            }
+
+            // Gán sự kiện
+            $("#PaymentTypeSelect").change(updateUI);
+            $("#IsExtendCheckbox").change(function() {
+                // Nếu người dùng tích vào -> Trả lại giá trị mặc định là 30 (nếu đang là 0)
+                if($(this).is(":checked") && $("#AutoExtendDays").val() == 0) {
+                    $("#AutoExtendDays").val(30);
+                }
+                toggleExtendInput();
+            });
+            $("#AutoExtendDays").on("input", calculateNewDate);
+
+            // Chạy lần đầu
+            updateUI();
+        });
+    </script>
+}

@@ -1,0 +1,120 @@
+﻿@model IEnumerable<PhanMemCamDo.Models.Entities.Customer>
+
+@{
+    ViewData["Title"] = "Danh Sách Khách Hàng";
+}
+
+<div class="container mt-4">
+    <input type="hidden" id="hiddenNotiType" value="@TempData["NotificationType"]" />
+    <input type="hidden" id="hiddenNotiMessage" value="@TempData["NotificationMessage"]" />
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="text-primary fw-bold"><i class="fa-solid fa-users"></i> Khách Hàng</h3>
+        <div class="d-flex gap-2">
+            <form asp-action="Index" method="get" class="d-flex">
+                <input type="text" name="searchString" class="form-control" placeholder="Tìm tên, SĐT, CCCD..." value="@Context.Request.Query["searchString"]" />
+                <button type="submit" class="btn btn-outline-primary ms-1"><i class="fa-solid fa-search"></i></button>
+            </form>
+
+            <a asp-action="Create" class="btn btn-success fw-bold shadow-sm">
+                <i class="fa-solid fa-user-plus"></i> Thêm
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow border-0">
+        <div class="card-body p-0">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light text-uppercase small fw-bold">
+                    <tr>
+                        <th class="ps-3">Họ Tên</th>
+                        <th>SĐT</th>
+                        <th>CCCD/CMND</th>
+                        <th>Địa Chỉ</th>
+                        <th class="text-center">Chức Năng</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="ps-3 fw-bold text-primary">
+                                <a asp-action="History" asp-route-id="@item.Id" class="text-decoration-none">
+                                    @item.FullName
+                                </a>
+                            </td>
+                            <td class="fw-bold">@item.PhoneNumber</td>
+                            <td>@item.IdentityCard</td>
+                            <td class="text-muted small">@item.Address</td>
+                            <td class="text-center">
+                                <a asp-action="History" asp-route-id="@item.Id" class="btn btn-sm btn-info text-white" title="Xem lịch sử">
+                                    <i class="fa-solid fa-clock-rotate-left"></i>
+                                </a>
+
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning text-dark" title="Sửa">
+                                    <i class="fa-solid fa-pen"></i>
+                                </a>
+
+                                @if (item.PawnContracts.Count == 0)
+                                {
+                                    <button type="button" class="btn btn-sm btn-danger" title="Xóa khách này"
+                                            onclick="xacNhanXoa(@item.Id, '@Html.Raw(item.FullName?.Replace("'", "\\'"))')">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+
+                                    <form id="delete-form-@item.Id" asp-action="Delete" asp-route-id="@item.Id" method="post" style="display:none;"></form>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-sm btn-secondary" disabled style="opacity: 0.6; cursor: not-allowed;"
+                                            title="⛔ Đang có hợp đồng - Không thể xóa">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // 1. Hàm xác nhận xóa
+        function xacNhanXoa(id, tenKhach) {
+            Swal.fire({
+                title: 'CẢNH BÁO XÓA!',
+                html: "Bạn có chắc muốn xóa khách hàng <b>" + tenKhach + "</b> không?<br>Hành động này không thể hoàn tác!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Vâng, Xóa luôn!',
+                cancelButtonText: 'Hủy bỏ'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('delete-form-' + id).submit();
+                }
+            })
+        }
+
+        // 👇 2. SỬA ĐOẠN NÀY: Lấy dữ liệu từ thẻ Input ẩn thay vì viết Razor trực tiếp
+        // Cách này sạch code JS và không bao giờ bị báo lỗi cú pháp
+        var notiType = document.getElementById('hiddenNotiType').value;
+        var notiMessage = document.getElementById('hiddenNotiMessage').value;
+
+        // Chỉ hiện thông báo khi có dữ liệu (value khác rỗng)
+        if (notiType && notiMessage) {
+            Swal.fire({
+                icon: notiType, // 'success' hoặc 'error'
+                title: notiType === 'success' ? 'Thành công!' : 'Thất bại!',
+                text: notiMessage,
+                confirmButtonColor: notiType === 'success' ? '#28a745' : '#d33',
+                timer: 3000
+            });
+        }
+    </script>
+}

@@ -1,0 +1,57 @@
+﻿@model PhanMemCamDo.Models.Entities.Customer
+
+@{
+    ViewData["Title"] = "Sửa Khách Hàng";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow border-0">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0 fw-bold"><i class="fa-solid fa-pen-to-square"></i> Cập Nhật Thông Tin</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit">
+                        <input type="hidden" asp-for="Id" />
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Họ Tên</label>
+                            <input asp-for="FullName" class="form-control fw-bold" required />
+                            <span asp-validation-for="FullName" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Số Điện Thoại</label>
+                                <input asp-for="PhoneNumber" class="form-control" required />
+                                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">CCCD / CMND</label>
+                                <input asp-for="IdentityCard" class="form-control" required />
+                                <span asp-validation-for="IdentityCard" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Địa Chỉ</label>
+                            <input asp-for="Address" class="form-control" />
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-warning fw-bold px-4">Lưu Thay Đổi</button>
+                            <a asp-action="Index" class="btn btn-outline-secondary ms-2">Quay Lại</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

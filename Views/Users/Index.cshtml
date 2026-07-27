@@ -1,0 +1,53 @@
+﻿@model IEnumerable<PhanMemCamDo.Models.Entities.User>
+@{
+    ViewData["Title"] = "Danh Sách Nhân Viên";
+}
+
+<div class="d-flex justify-content-between mb-3">
+    <h2>👮 Quản Lý Nhân Viên</h2>
+    <a asp-controller="Account" asp-action="Register" class="btn btn-success">Thêm Nhân Viên Mới</a>
+</div>
+
+<table class="table table-hover shadow-sm">
+    <thead class="table-light">
+        <tr>
+            <th>Tên Đăng Nhập</th>
+            <th>Họ Tên</th>
+            <th>Quyền Hạn</th>
+            <th>Trạng Thái</th>
+            <th>Thao Tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td class="fw-bold">@item.Username</td>
+                <td>@item.FullName</td>
+                <td>
+                    @if (item.Role == PhanMemCamDo.Models.Enums.UserRole.Admin)
+                    {
+                        <span class="badge bg-danger">Quản Trị Viên</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-info text-dark">Nhân Viên</span>
+                    }
+                </td>
+                <td>
+                    @if (item.IsActive)
+                    {
+                        <span class="text-success"><i class="fa-solid fa-circle-check"></i> Đang làm</span>
+                    }
+                    else
+                    {
+                        <span class="text-muted"><i class="fa-solid fa-circle-xmark"></i> Đã nghỉ</span>
+                    }
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Sửa</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

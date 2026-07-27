@@ -1,0 +1,37 @@
+﻿@using PhanMemCamDo.Models.Enums
+@model PhanMemCamDo.Models.Entities.CashFlow
+@{
+    ViewData["Title"] = "Lập Phiếu Thu Chi";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-warning text-dark">
+                <h4 class="mb-0">📝 Lập Phiếu Thu / Chi</h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Loại Giao Dịch</label>
+                        <select asp-for="FlowType" class="form-select" asp-items="Html.GetEnumSelectList<CashFlowType>()"></select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Số Tiền (VNĐ)</label>
+                        <input asp-for="Amount" class="form-control" type="number" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Lý Do / Nội Dung</label>
+                        <input asp-for="Description" class="form-control" placeholder="VD: Trả tiền điện, Thu lãi..." required />
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 fw-bold">
+                        <i class="fa-solid fa-save"></i> Lưu Phiếu
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,36 @@
+﻿@model PhanMemCamDo.Models.Entities.SystemConfig
+
+@{
+    ViewData["Title"] = "Sửa Cấu Hình";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow border-0">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0 fw-bold">Chỉnh Sửa: @Model.ConfigKey</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit">
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="ConfigKey" /> <input type="hidden" asp-for="Description" /> <div class="mb-3">
+                            <label class="form-label fw-bold">Giá Trị Mới</label>
+                            <input asp-for="ConfigValue" class="form-control form-control-lg fw-bold text-primary" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-muted small">Mô tả tác dụng:</label>
+                            <div class="form-control bg-light text-muted">@Model.Description</div>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-primary fw-bold px-4">Lưu Lại</button>
+                            <a asp-action="Index" class="btn btn-outline-secondary ms-2">Hủy</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

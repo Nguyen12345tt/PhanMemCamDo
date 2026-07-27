@@ -1,0 +1,152 @@
+﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Phần Mềm Cầm Đồ</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/PhanMemCamDo.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand fw-bold text-primary" asp-area="" asp-controller="Home" asp-action="Index">
+                    <i class="fa-solid fa-shop"></i> Cầm Đồ Xịn
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Home" asp-action="Index">Trang Chủ</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-dark fw-bold" asp-controller="Customers" asp-action="Index">Khách Hàng</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-dark fw-bold" asp-controller="Assets" asp-action="Index">Kho Tài Sản</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-dark fw-bold" asp-controller="PawnContracts" asp-action="Index">Hợp Đồng</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-dark fw-bold" asp-controller="PaymentHistories" asp-action="Index">Sổ Quỹ</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-primary fw-bold" asp-controller="Reports" asp-action="Index">
+                                <i class="fa-solid fa-chart-pie"></i> Báo Cáo
+                            </a>
+                        </li>
+                    </ul>
+
+<ul class="navbar-nav ms-auto">
+    @{
+        // Lấy tên đăng nhập từ Session (Thay vì Identity)
+        var username = Context.Session.GetString("Username");
+    }
+
+    @if (string.IsNullOrEmpty(username))
+    {
+        <li class="nav-item">
+            <a class="nav-link text-primary" asp-controller="Account" asp-action="Register">
+                <i class="fa-solid fa-user-plus"></i> Đăng Ký
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="btn btn-primary text-white btn-sm ms-2 mt-1 shadow-sm" asp-controller="Account" asp-action="Login">
+                <i class="fa-solid fa-right-to-bracket"></i> Đăng Nhập
+            </a>
+        </li>
+    }
+    else
+    {
+        
+            // Lấy chữ cái đầu làm Avatar (VD: Admin -> A)
+        var firstLetter = username.Length > 0 ? username.Substring(0, 1).ToUpper() : "U";
+        
+
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <div class="user-avatar shadow-sm">@firstLetter</div>
+                
+                <div class="d-none d-lg-block">
+                    <span class="fw-bold text-dark">@username</span>
+                    <br>
+                    <small class="text-muted" style="font-size: 0.7rem;">Quản Trị Viên</small>
+                </div>
+            </a>
+            
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0 animate slideIn" aria-labelledby="navbarDropdown">
+                <li>
+                    <div class="px-3 py-2 text-center border-bottom mb-2">
+                        <div class="user-avatar mx-auto mb-2" style="width: 50px; height: 50px; font-size: 1.5rem;">
+                            @firstLetter
+                        </div>
+                        <p class="mb-0 fw-bold">@username</p>
+                        <small class="text-muted">Đang hoạt động</small>
+                    </div>
+                </li>
+                <li>
+                     <a class="dropdown-item" asp-controller="Account" asp-action="Profile">
+                        <i class="fa-solid fa-id-card me-2 text-primary"></i> Hồ sơ cá nhân
+                     </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <a class="dropdown-item text-danger fw-bold" asp-controller="Account" asp-action="Logout">
+                        <i class="fa-solid fa-right-from-bracket me-2"></i> Đăng xuất
+                    </a>
+                </li>
+            </ul>
+        </li>
+    }
+</ul>
+
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <main role="main" class="pb-3">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+            }
+
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted bg-light mt-5">
+        <div class="container text-center py-3">
+            &copy; 2026 - Phần Mềm Quản Lý Cầm Đồ - <a asp-area="" asp-controller="Home" asp-action="Privacy">Bảo Mật</a>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

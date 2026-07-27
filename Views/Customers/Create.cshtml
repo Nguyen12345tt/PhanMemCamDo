@@ -1,0 +1,55 @@
+﻿@model PhanMemCamDo.Models.Entities.Customer
+
+@{
+    ViewData["Title"] = "Thêm Khách Mới";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow border-0">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0 fw-bold"><i class="fa-solid fa-user-plus"></i> Thêm Khách Hàng Mới</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Họ Tên <span class="text-danger">*</span></label>
+                            <input asp-for="FullName" class="form-control fw-bold" placeholder="Nhập tên khách..." required />
+                            <span asp-validation-for="FullName" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Số Điện Thoại <span class="text-danger">*</span></label>
+                                <input asp-for="PhoneNumber" class="form-control" placeholder="09xxxx..." required />
+                                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">CCCD / CMND <span class="text-danger">*</span></label>
+                                <input asp-for="IdentityCard" class="form-control" placeholder="Số CCCD..." required />
+                                <span asp-validation-for="IdentityCard" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Địa Chỉ</label>
+                            <input asp-for="Address" class="form-control" placeholder="Nhập địa chỉ..." />
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-success fw-bold px-4">Thêm Mới</button>
+                            <a asp-action="Index" class="btn btn-outline-secondary ms-2">Hủy Bỏ</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
