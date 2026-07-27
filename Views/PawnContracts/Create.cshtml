@@ -87,10 +87,10 @@
                             <label class="form-label fw-bold">Số Tiền Cầm (VNĐ) <span class="text-danger">*</span></label>
                             <input asp-for="PawnAmount" type="text" id="PawnAmount"
                                    class="form-control form-control-lg fw-bold text-danger"
-                                   placeholder="Gõ số (VD: gõ 5 hoặc 50)..." required
+                                   placeholder="Gõ số (VD: gõ 512 -> 512.000đ, gõ 5 -> 5 triệu)..." required
                                    value="@(Model?.PawnAmount > 0 ? Model.PawnAmount.ToString("N0") : "")"
                                    oninput="OnMoneyInput(this)"
-                                   onblur="HideSuggestionsDelay()"
+                                   onblur="OnMoneyBlur(this)"
                                    autocomplete="off" />
 
                             <!-- Gợi ý chọn nhanh số tiền -->
@@ -146,7 +146,7 @@
     }
 
     <script>
-        // --- GỢI Ý CHỌN NHANH SỐ TIỀN THÔNG MINH TIỆM CẦM ĐỒ ---
+        // --- GỢI Ý & QUY ĐỔI SỐ TIỀN THÔNG MINH (< 1000 -> QUY ĐỔI NGHÌN/TRIỆU) ---
         function OnMoneyInput(input) {
             let rawStr = input.value.replace(/[^0-9]/g, '');
             let suggestionsMenu = document.getElementById("moneySuggestions");
@@ -200,20 +200,41 @@
             document.getElementById("moneySuggestions").style.display = "none";
         }
 
-        function HideSuggestionsDelay() {
+        function OnMoneyBlur(input) {
             setTimeout(function() {
                 let suggestionsMenu = document.getElementById("moneySuggestions");
                 if (suggestionsMenu) suggestionsMenu.style.display = "none";
             }, 250);
+
+            let rawStr = input.value.replace(/[^0-9]/g, '');
+            if (!rawStr) return;
+            let num = parseInt(rawStr);
+            if (num > 0 && num < 1000) {
+                if (num < 100) {
+                    num = num * 1000000; // gõ 5 -> 5.000.000đ (5 triệu)
+                } else {
+                    num = num * 1000;    // gõ 512 -> 512.000đ (512 nghìn)
+                }
+                input.value = num.toLocaleString('vi-VN');
+            } else if (num >= 1000) {
+                input.value = num.toLocaleString('vi-VN');
+            }
         }
 
-        // Tự động chuyển đổi thành số thuần túy trước khi submit form
+        // Tự động chuyển đổi số nhỏ (< 1000) thành Nghìn/Triệu trước khi submit form
         $("form").submit(function () {
             let input = $("#PawnAmount");
             let digitsOnly = input.val().replace(/[^0-9]/g, '');
             if (digitsOnly) {
-                input.val(digitsOnly);
+                let num = parseInt(digitsOnly);
+                if (num > 0 && num < 1000) {
+                    if (num < 100) {
+                        num = num * 1000000; // gõ 5 -> 5.000.000
+                    } else {
+                        num = num * 1000;    // gõ 512 -> 512.000
+                    }
+                }
+                input.val(num.toString());
             }
         });
     </script>
-}
