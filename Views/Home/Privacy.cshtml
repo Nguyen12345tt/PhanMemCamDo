@@ -1,6 +1,111 @@
-﻿@{
-    ViewData["Title"] = "Privacy Policy";
+@{
+    ViewData["Title"] = "Chính Sách Bảo Mật";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<div class="container mt-4 mb-5" style="max-width: 1000px;">
+    <!-- Page Banner -->
+    <div class="card bg-primary text-white shadow-lg border-0 rounded-4 overflow-hidden mb-4">
+        <div class="card-body p-4 p-md-5 position-relative">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <span class="badge bg-white text-primary fw-bold text-uppercase px-3 py-2 mb-3 shadow-sm">
+                        <i class="fa-solid fa-shield-halved me-1"></i> An Toàn & Bảo Mật
+                    </span>
+                    <h2 class="display-6 fw-bold mb-2">Chính Sách Bảo Mật & Quy Định Sử Dụng</h2>
+                    <p class="lead opacity-90 mb-0">
+                        Cam kết bảo vệ tuyệt đối thông tin khách hàng, dữ liệu hợp đồng và tài sản cầm cố tại cửa hàng.
+                    </p>
+                </div>
+                <div class="col-md-4 text-center d-none d-md-block">
+                    <i class="fa-solid fa-user-shield text-white opacity-25" style="font-size: 7rem;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Cards -->
+    <div class="row g-4 mb-4">
+        <!-- 1. Bảo Mật Thông Tin Khách Hàng -->
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-0 rounded-3">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-circle me-3">
+                            <i class="fa-solid fa-id-card fa-xl"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-0">1. Bảo Mật Thông Tin Khách Hàng</h5>
+                    </div>
+                    <p class="text-muted small mb-0">
+                        Mọi thông tin cá nhân của khách hàng bao gồm **Họ tên, Số điện thoại, Số CCCD/CMND, Địa chỉ** đều được mã hóa và bảo vệ nghiêm ngặt. Hệ thống cam kết không chia sẻ dữ liệu cho bất kỳ bên thứ ba nào khi chưa có sự đồng ý của khách hàng.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Bảo Mật Hợp Đồng & Tài Sản -->
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-0 rounded-3">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-success bg-opacity-10 text-success p-3 rounded-circle me-3">
+                            <i class="fa-solid fa-file-contract fa-xl"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-0">2. An Toàn Hợp Đồng & Kho Tài Sản</h5>
+                    </div>
+                    <p class="text-muted small mb-0">
+                        Thông tin hợp đồng cầm đồ, mã tài sản, giá trị định giá và kho lưu trữ được quản lý bảo mật trên Server. Quá trình đóng lãi, gia hạn, chuộc đồ hoặc thanh lý tài sản đều phải được xác thực đúng thông tin chủ hợp đồng.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Phân Quyền & Vết Thao Tác (Audit Log) -->
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-0 rounded-3">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-warning bg-opacity-10 text-warning p-3 rounded-circle me-3">
+                            <i class="fa-solid fa-user-lock fa-xl"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-0">3. Phân Quyền & Nhật Ký Thao Tác</h5>
+                    </div>
+                    <p class="text-muted small mb-0">
+                        Hệ thống áp dụng phân quyền truy cập nghiêm ngặt giữa **Quản Trị Viên (Admin)** và **Nhân Viên (Staff)**. Tất cả các hành động Thêm, Sửa, Xóa hợp đồng hoặc Thanh lý đều được ghi lại trong **Nhật ký hệ thống** (`ActionLogs`) để đối soát minh bạch.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Sao Lưu & Phục Hồi Dữ Liệu -->
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-0 rounded-3">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-danger bg-opacity-10 text-danger p-3 rounded-circle me-3">
+                            <i class="fa-solid fa-database fa-xl"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-0">4. Sao Lưu Dữ Liệu An Toàn</h5>
+                    </div>
+                    <p class="text-muted small mb-0">
+                        Cơ sở dữ liệu cửa hàng (`PawnShopDB`) được tự động sao lưu định kỳ, phòng tránh hoàn toàn các rủi ro về sự cố phần cứng, vi-rút hoặc gián đoạn mạng, đảm bảo dữ liệu kinh doanh luôn được toàn vẹn 24/7.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact & Support Card -->
+    <div class="card bg-light border-0 shadow-sm rounded-4 p-4 text-center">
+        <div class="card-body">
+            <h5 class="fw-bold text-primary mb-2">
+                <i class="fa-solid fa-headset me-2"></i> Bạn Cần Hỗ Trợ Kỹ Thuật Hoặc Thắc Mắc Về Bảo Mật?
+            </h5>
+            <p class="text-muted small mb-3">Vui lòng liên hệ bộ phận Quản trị hệ thống Cầm Đồ Xịn để được giải đáp nhanh chóng.</p>
+            <div class="d-flex justify-content-center gap-4 flex-wrap text-dark fw-bold small">
+                <span><i class="fa-solid fa-phone me-1 text-success"></i> Hotline: 0909 000 111</span>
+                <span><i class="fa-solid fa-envelope me-1 text-danger"></i> Email: hotro@camdoxin.com</span>
+                <span><i class="fa-solid fa-clock me-1 text-warning"></i> Giờ làm việc: 08:00 - 21:00 Hàng ngày</span>
+            </div>
+        </div>
+    </div>
+</div>
