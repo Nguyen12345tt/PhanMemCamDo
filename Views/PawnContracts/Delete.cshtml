@@ -1,0 +1,57 @@
+﻿@model PhanMemCamDo.Models.Entities.PawnContract
+
+@{
+    ViewData["Title"] = "Xóa Hợp Đồng";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow border-0 border-top border-danger border-5">
+                <div class="card-header bg-white text-center py-4">
+                    <div class="text-danger mb-3">
+                        <i class="fa-solid fa-file-circle-xmark fa-4x"></i>
+                    </div>
+                    <h3 class="fw-bold text-danger">XÓA HỢP ĐỒNG?</h3>
+                    <p class="text-muted mb-0">Hành động này sẽ xóa vĩnh viễn hợp đồng này khỏi hệ thống.</p>
+                </div>
+
+                <div class="card-body p-4 bg-light bg-opacity-25">
+                    <p class="text-center fw-bold mb-3">Thông tin hợp đồng sắp xóa:</p>
+
+                    <div class="alert alert-light border shadow-sm">
+                        <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+                            <span class="fw-bold text-muted">Mã HĐ:</span>
+                            <span class="fw-bold text-primary">@Model.ContractCode</span>
+                        </div>
+                        <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+                            <span class="fw-bold text-muted">Khách hàng:</span>
+                            <span class="fw-bold">@Model.Customer?.FullName</span>
+                        </div>
+                        <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+                            <span class="fw-bold text-muted">Tài sản:</span>
+                            <span class="fw-bold">@Model.Asset?.AssetName</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="fw-bold text-muted">Số tiền cầm:</span>
+                            <span class="fw-bold text-danger">@String.Format("{0:0,0}", Model.PawnAmount) đ</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer bg-white p-3 d-flex justify-content-center gap-3">
+                    <a asp-action="Index" class="btn btn-outline-secondary px-4 fw-bold">
+                        <i class="fa-solid fa-arrow-left"></i> Không xóa
+                    </a>
+
+                    <form asp-action="Delete">
+                        <input type="hidden" asp-for="Id" />
+                        <button type="submit" class="btn btn-danger px-4 fw-bold shadow-sm">
+                            <i class="fa-solid fa-trash-can"></i> Xóa Luôn
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
