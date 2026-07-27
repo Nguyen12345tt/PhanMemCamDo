@@ -1,0 +1,38 @@
+﻿@model IEnumerable<PhanMemCamDo.Models.Entities.ActionLog>
+@{
+    ViewData["Title"] = "Nhật Ký Hoạt Động";
+}
+
+<div class="container mt-4">
+    <h3 class="text-primary fw-bold mb-3"><i class="fa-solid fa-clock-rotate-left"></i> Nhật Ký Hoạt Động</h3>
+
+    <div class="card shadow border-0">
+        <div class="card-body p-0">
+            <table class="table table-striped table-hover mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th>Thời Gian</th>
+                        <th>Hành Động</th>
+                        <th>Chi Tiết</th>
+                        <th>Người Thực Hiện</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Timestamp.ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>
+                                <span class="badge @(item.ActionName != null && item.ActionName.Contains("XÓA") ? "bg-danger" : "bg-primary")">
+                                    @item.ActionName
+                                </span>
+                            </td>
+                            <td>@item.Description</td>
+                            <td class="fw-bold text-secondary">@item.UserName</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

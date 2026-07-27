@@ -1,0 +1,45 @@
+﻿@model PhanMemCamDo.Models.Entities.Asset
+
+@{
+    ViewData["Title"] = "Cập Nhật Tài Sản";
+}
+
+<div class="container mt-5">
+    <div class="card shadow border-0" style="max-width: 600px; margin: 0 auto;">
+        <div class="card-header bg-warning text-dark">
+            <h4 class="mb-0 fw-bold"><i class="fa-solid fa-pen-to-square"></i> Cập Nhật Tài Sản</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="Edit">
+                <input type="hidden" asp-for="Id" />
+
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Tên Tài Sản</label>
+                    <input asp-for="AssetName" class="form-control" placeholder="Nhập tên tài sản..." required />
+                    <span asp-validation-for="AssetName" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Mô Tả / Tình Trạng</label>
+                    <textarea asp-for="Description" class="form-control" rows="4" placeholder="Ví dụ: Xe trầy xước nhẹ, mất giấy tờ..."></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-primary fw-bold px-4">
+                        <i class="fa-solid fa-floppy-disk"></i> Lưu Thay Đổi
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary ms-2">Quay Lại</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

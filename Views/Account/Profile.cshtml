@@ -1,0 +1,135 @@
+﻿@model PhanMemCamDo.Models.Entities.User
+@{
+    ViewData["Title"] = "Hồ Sơ Cá Nhân";
+    var username = Model.Username ?? "User";
+    var firstLetter = username.Substring(0, 1).ToUpper();
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow border-0 rounded-3">
+                <div class="card-header bg-primary text-white text-center py-4 rounded-top"
+                     style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+
+                    <div class="mx-auto bg-white text-primary fw-bold d-flex align-items-center justify-content-center rounded-circle shadow"
+                         style="width: 100px; height: 100px; font-size: 3rem; border: 4px solid rgba(255,255,255,0.3);">
+                        @firstLetter
+                    </div>
+
+                    <h3 class="mt-3 fw-bold">@Model.FullName</h3>
+                    <p class="mb-0 opacity-75">Quản Trị Viên Hệ Thống</p>
+                </div>
+
+                <div class="card-body p-4">
+                    <h5 class="text-primary mb-3"><i class="fa-solid fa-id-card"></i> Thông Tin Chi Tiết</h5>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="small text-muted fw-bold">Tên Đăng Nhập</label>
+                            <input type="text" class="form-control bg-light" value="@Model.Username" readonly />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="small text-muted fw-bold">Họ Và Tên</label>
+                            <input type="text" class="form-control" value="@Model.FullName" readonly />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="small text-muted fw-bold">Email</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fa-solid fa-envelope"></i></span>
+                                <input type="text" class="form-control" value="@(Model.Email ?? "Chưa cập nhật")" readonly />
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="small text-muted fw-bold">Số Điện Thoại</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fa-solid fa-phone"></i></span>
+                                <input type="text" class="form-control" value="@(Model.PhoneNumber ?? "Chưa cập nhật")" readonly />
+                            </div>
+                        </div>
+
+                        <div class="col-12 mt-4">
+                            <div class="d-flex justify-content-center gap-3">
+                                <a asp-action="EditProfile" class="btn btn-primary px-4 shadow-sm">
+                                    <i class="fa-solid fa-pen-to-square"></i> Cập Nhật Hồ Sơ
+                                </a>
+
+                                <button type="button" class="btn btn-outline-danger px-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#changePassModal">
+                                    <i class="fa-solid fa-key me-2"></i> Đổi Mật Khẩu
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer bg-light text-center py-3 text-muted small">
+                    Tài khoản được tạo ngày: @DateTime.Now.ToString("dd/MM/yyyy")
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="changePassModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title fw-bold"><i class="fa-solid fa-lock me-2"></i> Đổi Mật Khẩu</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form asp-controller="Account" asp-action="ChangePassword" method="post">
+                <div class="modal-body p-4">
+
+                    @if (TempData["PassError"] != null)
+                    {
+                        <div class="alert alert-danger text-center shadow-sm mb-3">
+                            <i class="fa-solid fa-triangle-exclamation me-1"></i> @TempData["PassError"]
+                        </div>
+                    }
+
+                    <div class="form-floating mb-3">
+                        <input name="OldPassword" type="password" class="form-control" id="oldPass" placeholder="Mật khẩu cũ" required>
+                        <label for="oldPass">Mật khẩu hiện tại</label>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input name="NewPassword" type="password" class="form-control" id="newPass" placeholder="Mật khẩu mới" required>
+                        <label for="newPass">Mật khẩu mới</label>
+                    </div>
+
+                    <div class="form-floating">
+                        <input name="ConfirmPassword" type="password" class="form-control" id="confirmPass" placeholder="Xác nhận" required>
+                        <label for="confirmPass">Nhập lại mật khẩu mới</label>
+                    </div>
+                </div>
+
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-danger fw-bold shadow-sm">Xác Nhận Đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function () {
+            // Kiểm tra tín hiệu mở lại Modal từ Controller
+            var shouldReopen = '@TempData["KeepOpen"]';
+
+            if (shouldReopen === 'True') {
+                var myModal = new bootstrap.Modal(document.getElementById('changePassModal'));
+                myModal.show();
+            }
+        });
+    </script>
+}

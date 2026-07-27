@@ -1,0 +1,50 @@
+﻿@model PhanMemCamDo.Models.Entities.Asset
+
+@{
+    ViewData["Title"] = "Xóa Tài Sản";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow border-0 border-top border-danger border-5">
+                <div class="card-header bg-white text-center py-4">
+                    <div class="text-danger mb-3">
+                        <i class="fa-solid fa-triangle-exclamation fa-4x"></i>
+                    </div>
+                    <h3 class="fw-bold text-danger">XÁC NHẬN XÓA?</h3>
+                    <p class="text-muted mb-0">Hành động này không thể khôi phục lại được.</p>
+                </div>
+
+                <div class="card-body p-4 bg-light bg-opacity-25">
+                    <p class="text-center fw-bold mb-3">Bạn đang chuẩn bị xóa tài sản:</p>
+
+                    <div class="alert alert-light border shadow-sm text-center">
+                        <h4 class="text-primary fw-bold mb-1">@Model.AssetName</h4>
+                        <div class="text-muted fst-italic">
+                            @(string.IsNullOrEmpty(Model.Description) ? "Không có mô tả" : Model.Description)
+                        </div>
+                    </div>
+
+                    <div asp-validation-summary="All" class="alert alert-danger d-flex align-items-center" role="alert" style="display:none">
+                        <i class="fa-solid fa-circle-exclamation me-2"></i>
+                        <div></div>
+                    </div>
+                </div>
+
+                <div class="card-footer bg-white p-3 d-flex justify-content-center gap-3">
+                    <a asp-action="Index" class="btn btn-outline-secondary px-4 fw-bold">
+                        <i class="fa-solid fa-xmark"></i> Không xóa
+                    </a>
+
+                    <form asp-action="Delete">
+                        <input type="hidden" asp-for="Id" />
+                        <button type="submit" class="btn btn-danger px-4 fw-bold">
+                            <i class="fa-solid fa-trash-can"></i> Xóa Luôn
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
