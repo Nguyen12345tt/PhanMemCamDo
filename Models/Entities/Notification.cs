@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PhanMemCamDo.Models.Entities
@@ -10,6 +10,8 @@ namespace PhanMemCamDo.Models.Entities
         public int Id { get; set; }
         public string ?Title { get; set; }
         public string ?Message { get; set; }
+        public int? ContractId { get; set; }
+        public string? Url { get; set; }
         public bool IsRead { get; set; } = false; // Đã đọc chưa
         public DateTime CreatedDate { get; set; } = DateTime.Now;
     }

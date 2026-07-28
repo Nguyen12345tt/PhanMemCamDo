@@ -35,6 +35,8 @@ namespace PhanMemCamDo.Controllers.Api
                     n.Title,
                     n.Message,
                     n.IsRead,
+                    n.ContractId,
+                    Url = !string.IsNullOrEmpty(n.Url) ? n.Url : (n.ContractId.HasValue ? $"/PawnContracts/Details/{n.ContractId}" : "/PawnContracts"),
                     CreatedDate = n.CreatedDate.ToString("dd/MM/yyyy HH:mm")
                 })
                 .ToListAsync();
@@ -94,6 +96,8 @@ namespace PhanMemCamDo.Controllers.Api
                     {
                         Title = title,
                         Message = $"Hợp đồng {item.ContractCode} (Khách: {item.Customer?.FullName}) đã quá hạn từ ngày {item.EndDate:dd/MM/yyyy}. Cần xử lý đóng lãi hoặc thanh lý!",
+                        ContractId = item.Id,
+                        Url = $"/PawnContracts/Details/{item.Id}",
                         IsRead = false,
                         CreatedDate = now
                     });
@@ -119,6 +123,8 @@ namespace PhanMemCamDo.Controllers.Api
                     {
                         Title = title,
                         Message = $"Hợp đồng {item.ContractCode} của khách hàng {item.Customer?.FullName} sẽ hết hạn {dueStr}. Vui lòng nhắc khách đóng lãi hoặc gia hạn!",
+                        ContractId = item.Id,
+                        Url = $"/PawnContracts/Details/{item.Id}",
                         IsRead = false,
                         CreatedDate = now
                     });
@@ -132,6 +138,7 @@ namespace PhanMemCamDo.Controllers.Api
                 {
                     Title = "🎉 Chào mừng đến với Phần Mềm Cầm Đồ!",
                     Message = "Hệ thống đã kích hoạt tính năng thông báo tự động. Các hợp đồng sắp hết hạn và quá hạn sẽ hiển thị tại đây.",
+                    Url = "/PawnContracts",
                     IsRead = false,
                     CreatedDate = now
                 });
