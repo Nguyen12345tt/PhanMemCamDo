@@ -1,52 +1,195 @@
-﻿@model IEnumerable<PhanMemCamDo.Models.Entities.SystemConfig>
+@model PhanMemCamDo.Models.ViewModels.ShopConfigViewModel
 
 @{
-    ViewData["Title"] = "Cấu Hình Hệ Thống";
+    ViewData["Title"] = "Thiết Lập Cửa Hàng";
 }
 
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow border-0">
-                <div class="card-header bg-secondary text-white">
-                    <h5 class="mb-0 fw-bold"><i class="fa-solid fa-gears"></i> Cài Đặt Hệ Thống</h5>
+<div class="container py-4">
+    <!-- Header banner -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden" style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%);">
+        <div class="card-body p-4 text-white">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div>
+                    <h3 class="fw-bold mb-1"><i class="fa-solid fa-sliders text-warning me-2"></i> Thiết Lập Cửa Hàng</h3>
+                    <p class="text-white-50 mb-0">Quản lý tên tiệm cầm đồ, thông tin liên hệ và quy tắc tính lãi suất tự động toàn hệ thống.</p>
                 </div>
-                <div class="card-body p-0">
-                    <table class="table table-hover table-striped mb-0">
-                        <thead class="bg-light text-uppercase small fw-bold">
-                            <tr>
-                                <th class="ps-4">Tên Cấu Hình</th>
-                                <th>Giá Trị Hiện Tại</th>
-                                <th>Mô Tả</th>
-                                <th class="text-center">Sửa</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var item in Model)
-                            {
-                                <tr>
-                                    <td class="ps-4 fw-bold text-primary">@item.ConfigKey</td>
-
-                                    <td class="fw-bold text-danger">@item.ConfigValue</td>
-
-                                    <td class="text-muted small fst-italic">@item.Description</td>
-
-                                    <td class="text-center">
-                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">
-                                            <i class="fa-solid fa-pen"></i> Sửa
-                                        </a>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+                <div class="badge bg-warning text-dark px-3 py-2 fs-6 rounded-pill">
+                    <i class="fa-solid fa-shield-halved me-1"></i> Dành Cho Chủ Cửa Hàng
                 </div>
             </div>
+        </div>
+    </div>
 
-            <div class="alert alert-info mt-3 shadow-sm border-0">
-                <i class="fa-solid fa-circle-info me-2"></i>
-                Các cấu hình này sẽ được áp dụng tự động khi tạo hợp đồng mới.
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm border-0 rounded-3 mb-4" role="alert">
+            <i class="fa-solid fa-circle-check fs-5 me-2 align-middle"></i>
+            <strong>Thành công!</strong> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row g-4">
+        <!-- Form Cấu hình bên trái -->
+        <div class="col-lg-7">
+            <form asp-action="SaveConfig" method="post" id="configForm">
+                @Html.AntiForgeryToken()
+                
+                <!-- Khối 1: Thông tin tiệm cầm đồ -->
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-header bg-white py-3 border-bottom border-light rounded-top-4">
+                        <h5 class="fw-bold mb-0 text-primary">
+                            <i class="fa-solid fa-store me-2"></i> Thông Tin Thương Hiệu & Tiệm Cầm Đồ
+                        </h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="mb-3">
+                            <label asp-for="TenCuaHang" class="form-label fw-bold text-dark"></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-primary border-end-0"><i class="fa-solid fa-shop"></i></span>
+                                <input asp-for="TenCuaHang" id="inputTenCuaHang" class="form-control border-start-0" placeholder="VD: Cầm Đồ Xịn" oninput="updatePreview()" />
+                            </div>
+                            <span asp-validation-for="TenCuaHang" class="text-danger small"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="SoDienThoai" class="form-label fw-bold text-dark"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light text-success border-end-0"><i class="fa-solid fa-phone"></i></span>
+                                    <input asp-for="SoDienThoai" id="inputSoDienThoai" class="form-control border-start-0" placeholder="VD: 0976543123" oninput="updatePreview()" />
+                                </div>
+                                <span asp-validation-for="SoDienThoai" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="DiaChi" class="form-label fw-bold text-dark"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light text-danger border-end-0"><i class="fa-solid fa-location-dot"></i></span>
+                                    <input asp-for="DiaChi" id="inputDiaChi" class="form-control border-start-0" placeholder="VD: 123 Nguyễn Trãi, Hà Nội" oninput="updatePreview()" />
+                                </div>
+                                <span asp-validation-for="DiaChi" class="text-danger small"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Khối 2: Quy tắc lãi suất & cảnh báo -->
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-header bg-white py-3 border-bottom border-light rounded-top-4">
+                        <h5 class="fw-bold mb-0 text-success">
+                            <i class="fa-solid fa-calculator me-2"></i> Quy Tắc Lãi Suất & Cảnh Báo
+                        </h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="LaiSuatMacDinh" class="form-label fw-bold text-dark"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light text-warning border-end-0"><i class="fa-solid fa-percent"></i></span>
+                                    <input asp-for="LaiSuatMacDinh" type="number" step="0.1" id="inputLaiSuat" class="form-control border-start-0 text-center fw-bold" oninput="updatePreview()" />
+                                </div>
+                                <span asp-validation-for="LaiSuatMacDinh" class="text-danger small"></span>
+                                <div class="form-text small">Tự động gợi ý khi mở Hợp Đồng Mới.</div>
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="HeSoPhatQuaHan" class="form-label fw-bold text-dark"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light text-danger border-end-0"><i class="fa-solid fa-gavel"></i></span>
+                                    <input asp-for="HeSoPhatQuaHan" type="number" step="0.1" class="form-control border-start-0 text-center fw-bold" />
+                                </div>
+                                <span asp-validation-for="HeSoPhatQuaHan" class="text-danger small"></span>
+                                <div class="form-text small">VD: 1.5 (Phạt gấp 1.5 lần lãi).</div>
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label asp-for="ThoiHanCanhBao" class="form-label fw-bold text-dark"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light text-info border-end-0"><i class="fa-solid fa-clock"></i></span>
+                                    <input asp-for="ThoiHanCanhBao" type="number" min="1" max="30" class="form-control border-start-0 text-center fw-bold" />
+                                </div>
+                                <span asp-validation-for="ThoiHanCanhBao" class="text-danger small"></span>
+                                <div class="form-text small">Số ngày đếm ngược chuông 🔔.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nút bấm lưu -->
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg shadow-sm rounded-3 py-3 fw-bold">
+                        <i class="fa-solid fa-floppy-disk me-2"></i> Lưu Tất Cả Cấu Hình
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Thẻ Xem Trước Bên Phải (Live Preview Card) -->
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm rounded-4 position-sticky" style="top: 20px;">
+                <div class="card-header bg-light py-3 border-bottom border-light rounded-top-4">
+                    <h6 class="fw-bold mb-0 text-dark">
+                        <i class="fa-solid fa-eye me-2 text-primary"></i> Xem Trước Hiển Thị Cửa Hàng
+                    </h6>
+                </div>
+                <div class="card-body p-4 text-center">
+                    <div class="avatar-box mx-auto mb-3 bg-primary text-white rounded-circle d-flex align-items-center justify-content-center shadow" style="width: 80px; height: 80px; font-size: 32px;">
+                        <i class="fa-solid fa-shop"></i>
+                    </div>
+
+                    <h4 class="fw-bold text-primary mb-2" id="previewTenCuaHang">@Model.TenCuaHang</h4>
+                    <p class="text-muted small mb-3">Hệ Thống Quản Lý Cầm Đồ Chuyên Nghiệp</p>
+
+                    <div class="bg-light p-3 rounded-3 text-start mb-3">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fa-solid fa-phone text-success me-3 fs-5"></i>
+                            <div>
+                                <div class="text-muted small">Hotline Tiệm</div>
+                                <div class="fw-bold" id="previewSoDienThoai">@Model.SoDienThoai</div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fa-solid fa-location-dot text-danger me-3 fs-5"></i>
+                            <div>
+                                <div class="text-muted small">Địa Chỉ</div>
+                                <div class="fw-bold" id="previewDiaChi">@Model.DiaChi</div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-center">
+                            <i class="fa-solid fa-percent text-warning me-3 fs-5"></i>
+                            <div>
+                                <div class="text-muted small">Lãi Suất Mặc Định</div>
+                                <div class="fw-bold text-danger"><span id="previewLaiSuat">@Model.LaiSuatMacDinh</span>% / tháng</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-warning border-0 small mb-0 text-start">
+                        <i class="fa-solid fa-lightbulb me-1 text-warning"></i>
+                        <strong>Lưu ý:</strong> Sau khi bấm <strong>Lưu Tất Cả Cấu Hình</strong>, Tên cửa hàng trên thanh Menu Navbar và mức lãi suất gợi ý khi tạo Hợp Đồng Mới sẽ tự động cập nhật ngay lập tức!
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function updatePreview() {
+            var ten = document.getElementById('inputTenCuaHang').value;
+            var sdt = document.getElementById('inputSoDienThoai').value;
+            var diachi = document.getElementById('inputDiaChi').value;
+            var laisuat = document.getElementById('inputLaiSuat').value;
+
+            document.getElementById('previewTenCuaHang').innerText = ten ? ten : 'Cầm Đồ Xịn';
+            document.getElementById('previewSoDienThoai').innerText = sdt ? sdt : '0976543123';
+            document.getElementById('previewDiaChi').innerText = diachi ? diachi : '123 Nguyễn Trãi, Hà Nội';
+            document.getElementById('previewLaiSuat').innerText = laisuat ? laisuat : '3';
+        }
+    </script>
+}

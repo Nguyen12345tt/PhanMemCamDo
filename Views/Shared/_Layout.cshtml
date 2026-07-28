@@ -17,8 +17,11 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
+                @{
+                    var currentStoreName = Context.Session.GetString("StoreName") ?? "Cầm Đồ Xịn";
+                }
                 <a class="navbar-brand fw-bold text-primary" asp-area="" asp-controller="Home" asp-action="Index">
-                    <i class="fa-solid fa-shop"></i> Cầm Đồ Xịn
+                    <i class="fa-solid fa-shop"></i> @currentStoreName
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
@@ -52,6 +55,15 @@
                                 <i class="fa-solid fa-chart-pie"></i> Báo Cáo
                             </a>
                         </li>
+
+                        @if (Context.Session.GetString("Role") == "Admin")
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-secondary fw-bold" asp-controller="SystemConfigs" asp-action="Index">
+                                    <i class="fa-solid fa-gear"></i> Cấu Hình
+                                </a>
+                            </li>
+                        }
                     </ul>
 
 <ul class="navbar-nav ms-auto align-items-center">
