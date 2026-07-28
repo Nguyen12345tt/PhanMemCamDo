@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PhanMemCamDo.Data;
 
@@ -11,9 +12,11 @@ using PhanMemCamDo.Data;
 namespace PhanMemCamDo.Migrations
 {
     [DbContext(typeof(PawnShopDbContext))]
-    partial class PawnShopDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260728081748_UpdateToNet10")]
+    partial class UpdateToNet10
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
