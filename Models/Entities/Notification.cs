@@ -10,7 +10,9 @@ namespace PhanMemCamDo.Models.Entities
         public int Id { get; set; }
         public string ?Title { get; set; }
         public string ?Message { get; set; }
+        [NotMapped]
         public int? ContractId { get; set; }
+        [NotMapped]
         public string? Url { get; set; }
         public bool IsRead { get; set; } = false; // Đã đọc chưa
         public DateTime CreatedDate { get; set; } = DateTime.Now;

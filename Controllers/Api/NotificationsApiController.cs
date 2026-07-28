@@ -27,19 +27,40 @@ namespace PhanMemCamDo.Controllers.Api
         {
             await AutoCheckContractNotifications();
 
-            var unreadList = await context.Notifications
+            var rawList = await context.Notifications
                 .OrderByDescending(n => n.CreatedDate)
                 .Take(20)
-                .Select(n => new {
+                .ToListAsync();
+
+            var unreadList = rawList.Select(n => {
+                string url = "/PawnContracts";
+                if (!string.IsNullOrEmpty(n.Url))
+                {
+                    url = n.Url;
+                }
+                else if (n.ContractId.HasValue)
+                {
+                    url = $"/PawnContracts/Details/{n.ContractId}";
+                }
+                else if (!string.IsNullOrEmpty(n.Title))
+                {
+                    // Tự rút mã HĐ từ tiêu đề (VD: "⚠️ Hợp đồng HD0002 đã quá hạn!")
+                    var match = System.Text.RegularExpressions.Regex.Match(n.Title, @"HD\d+");
+                    if (match.Success)
+                    {
+                        url = $"/PawnContracts?searchString={match.Value}";
+                    }
+                }
+
+                return new {
                     n.Id,
                     n.Title,
                     n.Message,
                     n.IsRead,
-                    n.ContractId,
-                    Url = !string.IsNullOrEmpty(n.Url) ? n.Url : (n.ContractId.HasValue ? $"/PawnContracts/Details/{n.ContractId}" : "/PawnContracts"),
+                    Url = url,
                     CreatedDate = n.CreatedDate.ToString("dd/MM/yyyy HH:mm")
-                })
-                .ToListAsync();
+                };
+            }).ToList();
 
             var unreadCount = await context.Notifications.CountAsync(n => !n.IsRead);
 

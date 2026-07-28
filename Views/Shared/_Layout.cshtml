@@ -210,6 +210,8 @@
                     `;
                 });
                 container.html(html);
+            }).fail(function() {
+                $('#notifList').html('<div class="text-center py-4 text-muted small"><i class="fa-solid fa-bell-slash fs-4 d-block mb-1 text-muted"></i> Chưa có thông báo mới</div>');
             });
         }
 
