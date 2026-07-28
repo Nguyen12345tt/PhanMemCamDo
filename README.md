@@ -36,13 +36,24 @@ cd PhanMemCamDo
 ---
 
 ### ⚙️ Bước 3: Cấu Hình Chuỗi Kết Nối CSDL (Database)
-File `appsettings.json` đã được cấu hình mặc định sử dụng **SQL LocalDB** (không cần cài đặt gì thêm nếu bạn đang dùng Windows):
-```json
-"ConnectionStrings": {
-  "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=PawnShopDB;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true"
-}
-```
-*Nếu sử dụng SQL Server riêng (như SQL Express hoặc SQL Server Management Studio), bạn chỉ cần thay đổi `Server` và thông tin đăng nhập trong file `appsettings.json`.*
+Ứng dụng được cấu hình đa môi trường linh hoạt cho **mọi máy tính**:
+
+1. **Khi mang dự án sang máy tính khác (Dùng SQL LocalDB mặc định)**:
+   File `appsettings.json` đã được cấu hình mặc định sử dụng **SQL LocalDB** (có sẵn trên mọi máy Windows có Visual Studio / .NET SDK, chạy được ngay mà không cần cài đặt hay chỉnh sửa thêm):
+   ```json
+   "ConnectionStrings": {
+     "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=PawnShopDB;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true"
+   }
+   ```
+
+2. **Khi chạy trên máy có cài đặt SQL Server riêng (như `.\MSSQLSERVER01` hay `.\SQLEXPRESS`)**:
+   Bạn cấu hình chuỗi kết nối riêng trong file `appsettings.Development.json`:
+   ```json
+   "ConnectionStrings": {
+     "DefaultConnection": "Server=.\\MSSQLSERVER01;Database=PawnShopDB;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true"
+   }
+   ```
+   *(Thay `.\\MSSQLSERVER01` thành tên Server Instance hiển thị trong phần Object Explorer trên máy của bạn).*
 
 ---
 
