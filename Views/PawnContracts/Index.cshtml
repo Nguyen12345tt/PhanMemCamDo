@@ -144,8 +144,13 @@
                                     </a>
                                 </td>
                                 <td>
-                                    <div class="fw-bold">@item.Customer?.FullName</div>
-                                    <small class="text-muted">@item.Customer?.PhoneNumber</small>
+                                    <div class="fw-bold text-dark">@item.Customer?.FullName</div>
+                                    <small class="text-muted"><i class="fa-solid fa-phone me-1"></i>@item.Customer?.PhoneNumber</small>
+                                    @if (!string.IsNullOrEmpty(item.Customer?.Address) && item.Customer.Address != "Chưa cập nhật")
+                                    {
+                                        <br>
+                                        <small class="text-muted"><i class="fa-solid fa-location-dot me-1 text-danger"></i>@item.Customer.Address</small>
+                                    }
                                 </td>
                                 <td>
                                     <div class="fw-bold">@item.Asset?.AssetName</div>

@@ -150,7 +150,7 @@ namespace PhanMemCamDo.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(PawnContract pawnContract,
                                                 string TenTaiSan, string MoTaTaiSan,
-                                                string TenKhach, string SDT, string CCCD,
+                                                string TenKhach, string SDT, string CCCD, string DiaChi,
                                                 int AssetCategoryId)
         {
             if (string.IsNullOrWhiteSpace(pawnContract.ContractCode))
@@ -197,11 +197,21 @@ namespace PhanMemCamDo.Controllers
                     pawnContract.CustomerId = existingCustomer.Id;
                     existingCustomer.FullName = TenKhach;
                     existingCustomer.PhoneNumber = SDT;
+                    if (!string.IsNullOrWhiteSpace(DiaChi))
+                    {
+                        existingCustomer.Address = DiaChi;
+                    }
                     context.Update(existingCustomer);
                 }
                 else
                 {
-                    var newCustomer = new Customer { FullName = TenKhach, PhoneNumber = SDT, IdentityCard = CCCD, Address = "Chưa cập nhật" };
+                    var newCustomer = new Customer
+                    {
+                        FullName = TenKhach,
+                        PhoneNumber = SDT,
+                        IdentityCard = CCCD,
+                        Address = string.IsNullOrWhiteSpace(DiaChi) ? "Chưa cập nhật" : DiaChi
+                    };
                     context.Customers.Add(newCustomer);
                     await context.SaveChangesAsync();
                     pawnContract.CustomerId = newCustomer.Id;

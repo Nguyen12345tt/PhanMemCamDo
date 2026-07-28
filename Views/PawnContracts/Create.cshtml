@@ -50,6 +50,12 @@
                                            oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                            value="@(khachQuen?.IdentityCard)" />
                                 </div>
+                                <div class="col-md-12">
+                                    <label class="form-label small fw-bold">Địa Chỉ Thường Trú / Tạm Trú</label>
+                                    <input type="text" name="DiaChi" class="form-control"
+                                           placeholder="VD: 123 Nguyễn Trãi, Thanh Xuân, Hà Nội"
+                                           value="@(khachQuen?.Address)" />
+                                </div>
                             </div>
                             @if (khachQuen != null)
                             {
