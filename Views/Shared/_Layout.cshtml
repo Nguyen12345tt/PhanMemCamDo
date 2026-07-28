@@ -1,4 +1,4 @@
-﻿@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Http
 @inject IHttpContextAccessor HttpContextAccessor
 
 <!DOCTYPE html>
@@ -80,6 +80,25 @@
         var firstLetter = username.Length > 0 ? username.Substring(0, 1).ToUpper() : "U";
         
 
+        <!-- Nút Thông Báo (Bell Icon 🔔) -->
+        <li class="nav-item dropdown me-2">
+            <a class="nav-link position-relative text-dark fs-5 p-2" href="#" id="notifDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" onclick="LoadNotifications()">
+                <i class="fa-solid fa-bell text-warning"></i>
+                <span id="notifBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display:none; font-size: 0.65rem;">
+                    0
+                </span>
+            </a>
+            <div class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 p-0" style="width: 340px; max-height: 450px; overflow-y: auto;" aria-labelledby="notifDropdown">
+                <div class="p-3 bg-light border-bottom d-flex justify-content-between align-items-center">
+                    <h6 class="fw-bold mb-0 text-dark"><i class="fa-solid fa-bell me-1 text-warning"></i> Thông Báo</h6>
+                    <button class="btn btn-link btn-sm text-primary p-0 text-decoration-none small" onclick="MarkAllRead(event)">Đã đọc tất cả</button>
+                </div>
+                <div id="notifList" class="list-group list-group-flush">
+                    <div class="text-center py-3 text-muted small"><i class="fa-solid fa-spinner fa-spin"></i> Đang tải thông báo...</div>
+                </div>
+            </div>
+        </li>
+
         <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                 <div class="user-avatar shadow-sm">@firstLetter</div>
@@ -147,6 +166,66 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script>
+        $(document).ready(function() {
+            FetchUnreadCount();
+            setInterval(FetchUnreadCount, 30000);
+        });
+
+        function FetchUnreadCount() {
+            $.get('/api/NotificationsApi/unread', function(data) {
+                if (data && data.unreadCount > 0) {
+                    $('#notifBadge').text(data.unreadCount).show();
+                } else {
+                    $('#notifBadge').hide();
+                }
+            });
+        }
+
+        function LoadNotifications() {
+            $.get('/api/NotificationsApi/unread', function(data) {
+                let container = $('#notifList');
+                if (!data || !data.items || data.items.length === 0) {
+                    container.html('<div class="text-center py-4 text-muted small"><i class="fa-solid fa-bell-slash fs-4 d-block mb-1"></i> Chưa có thông báo mới</div>');
+                    return;
+                }
+
+                let html = '';
+                data.items.forEach(item => {
+                    let bgClass = item.isRead ? 'bg-white opacity-75' : 'bg-light fw-bold';
+                    html += `
+                        <div class="list-group-item list-group-item-action ${bgClass} p-3 border-bottom">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="small text-dark fw-bold">${item.title}</span>
+                                <small class="text-muted" style="font-size: 0.7rem;">${item.createdDate}</small>
+                            </div>
+                            <p class="small text-secondary mb-1" style="font-weight: normal; font-size: 0.82rem;">${item.message}</p>
+                            ${!item.isRead ? `<button class="btn btn-link btn-sm text-primary p-0 small text-decoration-none" onclick="MarkSingleRead(${item.id}, event)">Đánh dấu đã đọc</button>` : ''}
+                        </div>
+                    `;
+                });
+                container.html(html);
+            });
+        }
+
+        function MarkSingleRead(id, event) {
+            if (event) event.stopPropagation();
+            $.post('/api/NotificationsApi/mark-as-read/' + id, function() {
+                FetchUnreadCount();
+                LoadNotifications();
+            });
+        }
+
+        function MarkAllRead(event) {
+            if (event) event.stopPropagation();
+            $.post('/api/NotificationsApi/mark-all-read', function() {
+                FetchUnreadCount();
+                LoadNotifications();
+            });
+        }
+    </script>
+    
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
