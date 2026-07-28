@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using PhanMemCamDo.Data;
@@ -94,12 +94,19 @@ namespace PhanMemCamDo.Controllers
                         }
                         else if (paymentHistory.PaymentType == PaymentType.Principal)
                         {
+                            if (paymentHistory.Amount > contract.PawnAmount)
+                            {
+                                ModelState.AddModelError("Amount", $"Số tiền trả bớt gốc ({paymentHistory.Amount:N0}đ) không được vượt quá số tiền nợ gốc hiện tại ({contract.PawnAmount:N0}đ)!");
+                                transaction.Rollback();
+                                ViewData["PawnContractId"] = new SelectList(context.PawnContracts.Where(c => c.Status == ContractStatus.Active), "Id", "ContractCode", paymentHistory.PawnContractId);
+                                return View(paymentHistory);
+                            }
+
                             contract.PawnAmount -= paymentHistory.Amount;
 
                             if (contract.PawnAmount <= 0)
                             {
                                 contract.PawnAmount = 0;
-                                
                                 contract.Status = ContractStatus.Redeemed;
                             }
                             context.Update(contract);
@@ -110,11 +117,18 @@ namespace PhanMemCamDo.Controllers
                             contract.Status = ContractStatus.Redeemed;
                             context.Update(contract);
                         }
+                        else if (paymentHistory.PaymentType == PaymentType.Liquidation)
+                        {
+                            contract.PawnAmount = 0;
+                            contract.Status = ContractStatus.Liquidated;
+                            context.Update(contract);
+                        }
                     }
 
                     await context.SaveChangesAsync();
                     await transaction.CommitAsync();
 
+                    TempData["SuccessMessage"] = "🎉 Thu tiền khách hàng thành công!";
                     return RedirectToAction(nameof(Index));
                 }
                 catch (Exception)
@@ -128,14 +142,43 @@ namespace PhanMemCamDo.Controllers
             return View(paymentHistory);
         }
 
-        // 👇 Đã thêm 'static' để tối ưu code (hết cảnh báo vàng)
+        // 4. API LẤY CHI TIẾT HỢP ĐỒNG BẰNG AJAX
+        [HttpGet]
+        public async Task<IActionResult> GetContractDetail(int id)
+        {
+            var contract = await context.PawnContracts
+                .Include(c => c.Customer)
+                .Include(c => c.Asset)
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (contract == null) return NotFound();
+
+            var interestPerMonth = contract.PawnAmount * contract.InterestRate / 100m;
+
+            return Json(new
+            {
+                id = contract.Id,
+                code = contract.ContractCode,
+                customerName = contract.Customer?.FullName ?? "N/A",
+                phone = contract.Customer?.PhoneNumber ?? "N/A",
+                assetName = contract.Asset?.AssetName ?? "N/A",
+                pawnAmount = contract.PawnAmount,
+                interestRate = contract.InterestRate,
+                startDate = contract.StartDate.ToString("dd/MM/yyyy"),
+                endDate = contract.EndDate.ToString("dd/MM/yyyy"),
+                endDateIso = contract.EndDate.ToString("yyyy-MM-ddTHH:mm"),
+                suggestedInterest = Math.Round(interestPerMonth, 0)
+            });
+        }
+
         private static string GetEnumName(PaymentType type)
         {
             return type switch
             {
                 PaymentType.Interest => "Lãi",
-                PaymentType.Principal => "Gốc",
-                PaymentType.Redeem => "Chuộc",
+                PaymentType.Principal => "Trả bớt gốc",
+                PaymentType.Redeem => "Chuộc đồ",
+                PaymentType.Liquidation => "Thanh lý",
                 _ => "Khác"
             };
         }
