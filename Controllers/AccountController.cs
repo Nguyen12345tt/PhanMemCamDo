@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PhanMemCamDo.Data;
 using PhanMemCamDo.Models.Entities;
@@ -42,31 +42,19 @@ namespace PhanMemCamDo.Controllers
 
                     // MÃ HÓA MẬT KHẨU (An toàn tuyệt đối)
                     //PasswordHash = HashPassword(model.Password ?? ""),
-                    Role = Models.Enums.UserRole.Staff, // Mặc định đăng ký mới là Nhân viên
+                    Role = model.Role, // Lưu đúng vai trò do người dùng chọn (Admin / Staff)
                     IsActive = true
                 };
 
                 context.Users.Add(newUser);
                 await context.SaveChangesAsync(); // Lưu vào SQL
 
-                // Đăng ký xong thì chuyển sang trang Đăng nhập (Login)
+                TempData["SuccessMessage"] = "Tạo tài khoản thành công! Vui lòng đăng nhập.";
                 return RedirectToAction("Login", "Account");
             }
 
             return View(model);
         }
-
-        // Hàm phụ: Mã hóa mật khẩu thành chuỗi ký tự loằng ngoằng (MD5/SHA256)
-        //private static string HashPassword(string password)
-        //{
-        //var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(password));
-        //var builder = new StringBuilder();
-        //foreach (var b in bytes)
-        //{
-        //   builder.Append(b.ToString("x2"));
-        //}
-        //return builder.ToString();
-        //}
 
         // 3. Hiện Form Đăng Nhập (GET)
         [HttpGet]
@@ -75,7 +63,7 @@ namespace PhanMemCamDo.Controllers
             return View();
         }
 
-        // 4. Xử lý Đăng Nhập (POST) - CẬP NHẬT
+        // 4. Xử lý Đăng Nhập (POST)
         [HttpPost]
         public async Task<IActionResult> Login(LoginVM model)
         {
@@ -88,17 +76,21 @@ namespace PhanMemCamDo.Controllers
                     return View(model);
                 }
 
-                //string inputHash = HashPassword(model.Password ?? "");
-                //if (user.PasswordHash != inputHash)
                 if (user.Password != model.Password)
                 {
                     ModelState.AddModelError("", "Mật khẩu không đúng!");
                     return View(model);
                 }
 
-                // --- ĐOẠN MỚI THÊM: LƯU SESSION ---
-                // Lưu tên và quyền hạn vào bộ nhớ tạm
+                if (!user.IsActive)
+                {
+                    ModelState.AddModelError("", "Tài khoản của bạn đã bị khóa hoặc ngừng hoạt động!");
+                    return View(model);
+                }
+
+                // Lưu thông tin người dùng vào Session
                 HttpContext.Session.SetString("Username", user.Username ?? "");
+                HttpContext.Session.SetString("FullName", user.FullName ?? user.Username ?? "");
                 HttpContext.Session.SetString("Role", user.Role.ToString());
 
                 return RedirectToAction("Index", "Home");

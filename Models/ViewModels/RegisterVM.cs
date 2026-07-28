@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
+using PhanMemCamDo.Models.Enums;
 
 namespace PhanMemCamDo.Models.ViewModels
 {
@@ -22,8 +23,10 @@ namespace PhanMemCamDo.Models.ViewModels
         [Required(ErrorMessage = "Phải nhập lại mật khẩu")]
         [DataType(DataType.Password)]
         [Compare("Password", ErrorMessage = "Mật khẩu nhập lại không khớp")] // Tự động so sánh
-
         public string ?ConfirmPassword { get; set; }
+
+        [Display(Name = "Vai Trò / Quyền Hạn")]
+        public UserRole Role { get; set; } = UserRole.Staff;
 
 
     }

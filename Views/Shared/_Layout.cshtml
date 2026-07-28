@@ -87,8 +87,13 @@
     </li>
 
     @{
-        // Lấy tên đăng nhập từ Session (Thay vì Identity)
+        // Lấy tên đăng nhập và vai trò từ Session
         var username = Context.Session.GetString("Username");
+        var fullName = Context.Session.GetString("FullName") ?? username;
+        var userRole = Context.Session.GetString("Role") ?? "Staff";
+        var isOwner = userRole == "Admin";
+        var roleTitle = isOwner ? "👑 Chủ Cửa Hàng" : "👤 Nhân Viên";
+        var roleBadgeClass = isOwner ? "bg-warning text-dark fw-bold" : "bg-secondary text-white";
     }
 
     @if (string.IsNullOrEmpty(username))
@@ -106,19 +111,16 @@
     }
     else
     {
-        
-            // Lấy chữ cái đầu làm Avatar (VD: Admin -> A)
-        var firstLetter = username.Length > 0 ? username.Substring(0, 1).ToUpper() : "U";
-        
+        var firstLetter = !string.IsNullOrEmpty(fullName) ? fullName.Substring(0, 1).ToUpper() : "U";
 
         <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                 <div class="user-avatar shadow-sm">@firstLetter</div>
                 
                 <div class="d-none d-lg-block">
-                    <span class="fw-bold text-dark">@username</span>
+                    <span class="fw-bold text-dark">@fullName</span>
                     <br>
-                    <small class="text-muted" style="font-size: 0.7rem;">Quản Trị Viên</small>
+                    <span class="badge @roleBadgeClass" style="font-size: 0.65rem;">@roleTitle</span>
                 </div>
             </a>
             
@@ -128,8 +130,9 @@
                         <div class="user-avatar mx-auto mb-2" style="width: 50px; height: 50px; font-size: 1.5rem;">
                             @firstLetter
                         </div>
-                        <p class="mb-0 fw-bold">@username</p>
-                        <small class="text-muted">Đang hoạt động</small>
+                        <p class="mb-1 fw-bold">@fullName</p>
+                        <span class="badge @roleBadgeClass mb-1">@roleTitle</span>
+                        <div class="small text-muted">@@@username</div>
                     </div>
                 </li>
                 <li>

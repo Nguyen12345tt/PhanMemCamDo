@@ -1,4 +1,4 @@
-﻿html {
+html {
   font-size: 14px;
 }
 
@@ -18,7 +18,20 @@ html {
 }
 
 body {
-  margin-bottom: 60px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main[role="main"] {
+  flex: 1 0 auto;
+}
+
+.footer {
+  position: relative !important;
+  bottom: 0;
+  width: 100%;
+  margin-top: auto !important;
 }
 
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
