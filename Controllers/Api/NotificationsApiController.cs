@@ -1,12 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PhanMemCamDo.Data;
 using PhanMemCamDo.Models.Entities;
+using PhanMemCamDo.Models.Enums;
+using PhanMemCamDo.Services;
 
 namespace PhanMemCamDo.Controllers.Api
 {
@@ -14,6 +17,7 @@ namespace PhanMemCamDo.Controllers.Api
     [ApiController]
     public class NotificationsApiController(PawnShopDbContext context) : ControllerBase
     {
+
         // GET: api/NotificationsApi
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Notification>>> GetNotifications()
@@ -53,7 +57,7 @@ namespace PhanMemCamDo.Controllers.Api
                 }
                 else if (!string.IsNullOrEmpty(n.Title))
                 {
-                    var match = System.Text.RegularExpressions.Regex.Match(n.Title, @"HD\d+");
+                    var match = NotificationRegex.MatchTitle(n.Title);
                     if (match.Success)
                     {
                         url = $"/PawnContracts?searchString={match.Value}";
@@ -71,7 +75,7 @@ namespace PhanMemCamDo.Controllers.Api
             }).ToList();
 
             return Ok(new {
-                unreadCount = unreadCount,
+                unreadCount,
                 items = unreadList
             });
         }
@@ -110,7 +114,7 @@ namespace PhanMemCamDo.Controllers.Api
             // 1. Kiểm tra hợp đồng quá hạn (EndDate.Date < today)
             var overdueContracts = await context.PawnContracts
                 .Include(p => p.Customer)
-                .Where(p => p.Status == Models.Enums.ContractStatus.Active && p.EndDate.Date < today)
+                .Where(p => p.Status == ContractStatus.Active && p.EndDate.Date < today)
                 .ToListAsync();
 
             foreach (var item in overdueContracts)
@@ -142,7 +146,7 @@ namespace PhanMemCamDo.Controllers.Api
             // 2. Kiểm tra hợp đồng sắp đến hạn (trong vòng 3 ngày tới: today <= EndDate.Date <= today + 3 ngày)
             var dueSoonContracts = await context.PawnContracts
                 .Include(p => p.Customer)
-                .Where(p => p.Status == Models.Enums.ContractStatus.Active && p.EndDate.Date >= today && p.EndDate.Date <= today.AddDays(3))
+                .Where(p => p.Status == ContractStatus.Active && p.EndDate.Date >= today && p.EndDate.Date <= today.AddDays(3))
                 .ToListAsync();
 
             foreach (var item in dueSoonContracts)
@@ -178,7 +182,7 @@ namespace PhanMemCamDo.Controllers.Api
             var grouped = allNotifications
                 .Where(n => !string.IsNullOrEmpty(n.Title))
                 .GroupBy(n => {
-                    var match = System.Text.RegularExpressions.Regex.Match(n.Title!, @"HD\d+");
+                    var match = NotificationRegex.MatchTitle(n.Title!);
                     return match.Success ? match.Value : n.Title!;
                 })
                 .Where(g => g.Count() > 1);
