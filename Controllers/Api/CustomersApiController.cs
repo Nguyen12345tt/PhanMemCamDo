@@ -12,27 +12,20 @@ namespace PhanMemCamDo.Controllers.Api
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CustomersApiController : ControllerBase
+    public class CustomersApiController(PawnShopDbContext context) : ControllerBase
     {
-        private readonly PawnShopDbContext _context;
-
-        public CustomersApiController(PawnShopDbContext context)
-        {
-            _context = context;
-        }
-
         // GET: api/CustomersApi
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Customer>>> GetCustomers()
         {
-            return await _context.Customers.ToListAsync();
+            return await context.Customers.ToListAsync();
         }
 
         // GET: api/CustomersApi/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Customer>> GetCustomer(int id)
         {
-            var customer = await _context.Customers.FindAsync(id);
+            var customer = await context.Customers.FindAsync(id);
 
             if (customer == null)
             {
@@ -52,11 +45,11 @@ namespace PhanMemCamDo.Controllers.Api
                 return BadRequest();
             }
 
-            _context.Entry(customer).State = EntityState.Modified;
+            context.Entry(customer).State = EntityState.Modified;
 
             try
             {
-                await _context.SaveChangesAsync();
+                await context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -78,8 +71,8 @@ namespace PhanMemCamDo.Controllers.Api
         [HttpPost]
         public async Task<ActionResult<Customer>> PostCustomer(Customer customer)
         {
-            _context.Customers.Add(customer);
-            await _context.SaveChangesAsync();
+            context.Customers.Add(customer);
+            await context.SaveChangesAsync();
 
             return CreatedAtAction("GetCustomer", new { id = customer.Id }, customer);
         }
@@ -88,21 +81,21 @@ namespace PhanMemCamDo.Controllers.Api
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCustomer(int id)
         {
-            var customer = await _context.Customers.FindAsync(id);
+            var customer = await context.Customers.FindAsync(id);
             if (customer == null)
             {
                 return NotFound();
             }
 
-            _context.Customers.Remove(customer);
-            await _context.SaveChangesAsync();
+            context.Customers.Remove(customer);
+            await context.SaveChangesAsync();
 
             return NoContent();
         }
 
         private bool CustomerExists(int id)
         {
-            return _context.Customers.Any(e => e.Id == id);
+            return context.Customers.Any(e => e.Id == id);
         }
     }
 }

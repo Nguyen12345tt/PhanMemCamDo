@@ -12,27 +12,20 @@ namespace PhanMemCamDo.Controllers.Api
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AssetCategoriesApiController : ControllerBase
+    public class AssetCategoriesApiController(PawnShopDbContext context) : ControllerBase
     {
-        private readonly PawnShopDbContext _context;
-
-        public AssetCategoriesApiController(PawnShopDbContext context)
-        {
-            _context = context;
-        }
-
         // GET: api/AssetCategoriesApi
         [HttpGet]
         public async Task<ActionResult<IEnumerable<AssetCategory>>> GetAssetCategories()
         {
-            return await _context.AssetCategories.ToListAsync();
+            return await context.AssetCategories.ToListAsync();
         }
 
         // GET: api/AssetCategoriesApi/5
         [HttpGet("{id}")]
         public async Task<ActionResult<AssetCategory>> GetAssetCategory(int id)
         {
-            var assetCategory = await _context.AssetCategories.FindAsync(id);
+            var assetCategory = await context.AssetCategories.FindAsync(id);
 
             if (assetCategory == null)
             {
@@ -52,11 +45,11 @@ namespace PhanMemCamDo.Controllers.Api
                 return BadRequest();
             }
 
-            _context.Entry(assetCategory).State = EntityState.Modified;
+            context.Entry(assetCategory).State = EntityState.Modified;
 
             try
             {
-                await _context.SaveChangesAsync();
+                await context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -78,8 +71,8 @@ namespace PhanMemCamDo.Controllers.Api
         [HttpPost]
         public async Task<ActionResult<AssetCategory>> PostAssetCategory(AssetCategory assetCategory)
         {
-            _context.AssetCategories.Add(assetCategory);
-            await _context.SaveChangesAsync();
+            context.AssetCategories.Add(assetCategory);
+            await context.SaveChangesAsync();
 
             return CreatedAtAction("GetAssetCategory", new { id = assetCategory.Id }, assetCategory);
         }
@@ -88,21 +81,21 @@ namespace PhanMemCamDo.Controllers.Api
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAssetCategory(int id)
         {
-            var assetCategory = await _context.AssetCategories.FindAsync(id);
+            var assetCategory = await context.AssetCategories.FindAsync(id);
             if (assetCategory == null)
             {
                 return NotFound();
             }
 
-            _context.AssetCategories.Remove(assetCategory);
-            await _context.SaveChangesAsync();
+            context.AssetCategories.Remove(assetCategory);
+            await context.SaveChangesAsync();
 
             return NoContent();
         }
 
         private bool AssetCategoryExists(int id)
         {
-            return _context.AssetCategories.Any(e => e.Id == id);
+            return context.AssetCategories.Any(e => e.Id == id);
         }
     }
 }

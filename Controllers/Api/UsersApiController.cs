@@ -12,27 +12,20 @@ namespace PhanMemCamDo.Controllers.Api
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsersApiController : ControllerBase
+    public class UsersApiController(PawnShopDbContext context) : ControllerBase
     {
-        private readonly PawnShopDbContext _context;
-
-        public UsersApiController(PawnShopDbContext context)
-        {
-            _context = context;
-        }
-
         // GET: api/UsersApi
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
-            return await _context.Users.ToListAsync();
+            return await context.Users.ToListAsync();
         }
 
         // GET: api/UsersApi/5
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetUser(int id)
         {
-            var user = await _context.Users.FindAsync(id);
+            var user = await context.Users.FindAsync(id);
 
             if (user == null)
             {
@@ -52,11 +45,11 @@ namespace PhanMemCamDo.Controllers.Api
                 return BadRequest();
             }
 
-            _context.Entry(user).State = EntityState.Modified;
+            context.Entry(user).State = EntityState.Modified;
 
             try
             {
-                await _context.SaveChangesAsync();
+                await context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -78,8 +71,8 @@ namespace PhanMemCamDo.Controllers.Api
         [HttpPost]
         public async Task<ActionResult<User>> PostUser(User user)
         {
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            context.Users.Add(user);
+            await context.SaveChangesAsync();
 
             return CreatedAtAction("GetUser", new { id = user.Id }, user);
         }
@@ -88,21 +81,21 @@ namespace PhanMemCamDo.Controllers.Api
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
-            var user = await _context.Users.FindAsync(id);
+            var user = await context.Users.FindAsync(id);
             if (user == null)
             {
                 return NotFound();
             }
 
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
+            context.Users.Remove(user);
+            await context.SaveChangesAsync();
 
             return NoContent();
         }
 
         private bool UserExists(int id)
         {
-            return _context.Users.Any(e => e.Id == id);
+            return context.Users.Any(e => e.Id == id);
         }
     }
 }

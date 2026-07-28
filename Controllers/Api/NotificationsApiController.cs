@@ -12,20 +12,13 @@ namespace PhanMemCamDo.Controllers.Api
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class NotificationsApiController : ControllerBase
+    public class NotificationsApiController(PawnShopDbContext context) : ControllerBase
     {
-        private readonly PawnShopDbContext _context;
-
-        public NotificationsApiController(PawnShopDbContext context)
-        {
-            _context = context;
-        }
-
         // GET: api/NotificationsApi
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Notification>>> GetNotifications()
         {
-            return await _context.Notifications.ToListAsync();
+            return await context.Notifications.ToListAsync();
         }
 
         // GET: api/NotificationsApi/unread
@@ -34,7 +27,7 @@ namespace PhanMemCamDo.Controllers.Api
         {
             await AutoCheckContractNotifications();
 
-            var unreadList = await _context.Notifications
+            var unreadList = await context.Notifications
                 .OrderByDescending(n => n.CreatedDate)
                 .Take(20)
                 .Select(n => new {
@@ -46,7 +39,7 @@ namespace PhanMemCamDo.Controllers.Api
                 })
                 .ToListAsync();
 
-            var unreadCount = await _context.Notifications.CountAsync(n => !n.IsRead);
+            var unreadCount = await context.Notifications.CountAsync(n => !n.IsRead);
 
             return Ok(new {
                 unreadCount = unreadCount,
@@ -58,11 +51,11 @@ namespace PhanMemCamDo.Controllers.Api
         [HttpPost("mark-as-read/{id}")]
         public async Task<IActionResult> MarkAsRead(int id)
         {
-            var notification = await _context.Notifications.FindAsync(id);
+            var notification = await context.Notifications.FindAsync(id);
             if (notification != null)
             {
                 notification.IsRead = true;
-                await _context.SaveChangesAsync();
+                await context.SaveChangesAsync();
             }
             return Ok();
         }
@@ -71,12 +64,12 @@ namespace PhanMemCamDo.Controllers.Api
         [HttpPost("mark-all-read")]
         public async Task<IActionResult> MarkAllAsRead()
         {
-            var unreadItems = await _context.Notifications.Where(n => !n.IsRead).ToListAsync();
+            var unreadItems = await context.Notifications.Where(n => !n.IsRead).ToListAsync();
             foreach (var item in unreadItems)
             {
                 item.IsRead = true;
             }
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
             return Ok();
         }
 
@@ -86,7 +79,7 @@ namespace PhanMemCamDo.Controllers.Api
             var threeDaysLater = now.AddDays(3);
 
             // 1. Kiểm tra hợp đồng quá hạn
-            var overdueContracts = await _context.PawnContracts
+            var overdueContracts = await context.PawnContracts
                 .Include(p => p.Customer)
                 .Where(p => p.Status == Models.Enums.ContractStatus.Active && p.EndDate < now)
                 .ToListAsync();
@@ -94,10 +87,10 @@ namespace PhanMemCamDo.Controllers.Api
             foreach (var item in overdueContracts)
             {
                 string title = $"⚠️ Hợp đồng {item.ContractCode} đã quá hạn!";
-                bool exists = await _context.Notifications.AnyAsync(n => n.Title == title);
+                bool exists = await context.Notifications.AnyAsync(n => n.Title == title);
                 if (!exists)
                 {
-                    _context.Notifications.Add(new Notification
+                    context.Notifications.Add(new Notification
                     {
                         Title = title,
                         Message = $"Hợp đồng {item.ContractCode} (Khách: {item.Customer?.FullName}) đã quá hạn từ ngày {item.EndDate:dd/MM/yyyy}. Cần xử lý đóng lãi hoặc thanh lý!",
@@ -108,7 +101,7 @@ namespace PhanMemCamDo.Controllers.Api
             }
 
             // 2. Kiểm tra hợp đồng sắp đến hạn (trong 3 ngày tới)
-            var dueSoonContracts = await _context.PawnContracts
+            var dueSoonContracts = await context.PawnContracts
                 .Include(p => p.Customer)
                 .Where(p => p.Status == Models.Enums.ContractStatus.Active && p.EndDate >= now && p.EndDate <= threeDaysLater)
                 .ToListAsync();
@@ -116,10 +109,10 @@ namespace PhanMemCamDo.Controllers.Api
             foreach (var item in dueSoonContracts)
             {
                 string title = $"⏰ Hợp đồng {item.ContractCode} sắp đến hạn!";
-                bool exists = await _context.Notifications.AnyAsync(n => n.Title == title);
+                bool exists = await context.Notifications.AnyAsync(n => n.Title == title);
                 if (!exists)
                 {
-                    _context.Notifications.Add(new Notification
+                    context.Notifications.Add(new Notification
                     {
                         Title = title,
                         Message = $"Hợp đồng {item.ContractCode} (Khách: {item.Customer?.FullName}) sẽ hết hạn vào ngày {item.EndDate:dd/MM/yyyy}.",
@@ -129,14 +122,14 @@ namespace PhanMemCamDo.Controllers.Api
                 }
             }
 
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
         }
 
         // GET: api/NotificationsApi/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Notification>> GetNotification(int id)
         {
-            var notification = await _context.Notifications.FindAsync(id);
+            var notification = await context.Notifications.FindAsync(id);
 
             if (notification == null)
             {
@@ -156,11 +149,11 @@ namespace PhanMemCamDo.Controllers.Api
                 return BadRequest();
             }
 
-            _context.Entry(notification).State = EntityState.Modified;
+            context.Entry(notification).State = EntityState.Modified;
 
             try
             {
-                await _context.SaveChangesAsync();
+                await context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -182,8 +175,8 @@ namespace PhanMemCamDo.Controllers.Api
         [HttpPost]
         public async Task<ActionResult<Notification>> PostNotification(Notification notification)
         {
-            _context.Notifications.Add(notification);
-            await _context.SaveChangesAsync();
+            context.Notifications.Add(notification);
+            await context.SaveChangesAsync();
 
             return CreatedAtAction("GetNotification", new { id = notification.Id }, notification);
         }
@@ -192,21 +185,21 @@ namespace PhanMemCamDo.Controllers.Api
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteNotification(int id)
         {
-            var notification = await _context.Notifications.FindAsync(id);
+            var notification = await context.Notifications.FindAsync(id);
             if (notification == null)
             {
                 return NotFound();
             }
 
-            _context.Notifications.Remove(notification);
-            await _context.SaveChangesAsync();
+            context.Notifications.Remove(notification);
+            await context.SaveChangesAsync();
 
             return NoContent();
         }
 
         private bool NotificationExists(int id)
         {
-            return _context.Notifications.Any(e => e.Id == id);
+            return context.Notifications.Any(e => e.Id == id);
         }
     }
 }

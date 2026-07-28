@@ -12,27 +12,20 @@ namespace PhanMemCamDo.Controllers.Api
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ActionLogsApiController : ControllerBase
+    public class ActionLogsApiController(PawnShopDbContext context) : ControllerBase
     {
-        private readonly PawnShopDbContext _context;
-
-        public ActionLogsApiController(PawnShopDbContext context)
-        {
-            _context = context;
-        }
-
         // GET: api/ActionLogsApi
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ActionLog>>> GetActionLogs()
         {
-            return await _context.ActionLogs.ToListAsync();
+            return await context.ActionLogs.ToListAsync();
         }
 
         // GET: api/ActionLogsApi/5
         [HttpGet("{id}")]
         public async Task<ActionResult<ActionLog>> GetActionLog(int id)
         {
-            var actionLog = await _context.ActionLogs.FindAsync(id);
+            var actionLog = await context.ActionLogs.FindAsync(id);
 
             if (actionLog == null)
             {
@@ -52,11 +45,11 @@ namespace PhanMemCamDo.Controllers.Api
                 return BadRequest();
             }
 
-            _context.Entry(actionLog).State = EntityState.Modified;
+            context.Entry(actionLog).State = EntityState.Modified;
 
             try
             {
-                await _context.SaveChangesAsync();
+                await context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -78,8 +71,8 @@ namespace PhanMemCamDo.Controllers.Api
         [HttpPost]
         public async Task<ActionResult<ActionLog>> PostActionLog(ActionLog actionLog)
         {
-            _context.ActionLogs.Add(actionLog);
-            await _context.SaveChangesAsync();
+            context.ActionLogs.Add(actionLog);
+            await context.SaveChangesAsync();
 
             return CreatedAtAction("GetActionLog", new { id = actionLog.Id }, actionLog);
         }
@@ -88,21 +81,21 @@ namespace PhanMemCamDo.Controllers.Api
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteActionLog(int id)
         {
-            var actionLog = await _context.ActionLogs.FindAsync(id);
+            var actionLog = await context.ActionLogs.FindAsync(id);
             if (actionLog == null)
             {
                 return NotFound();
             }
 
-            _context.ActionLogs.Remove(actionLog);
-            await _context.SaveChangesAsync();
+            context.ActionLogs.Remove(actionLog);
+            await context.SaveChangesAsync();
 
             return NoContent();
         }
 
         private bool ActionLogExists(int id)
         {
-            return _context.ActionLogs.Any(e => e.Id == id);
+            return context.ActionLogs.Any(e => e.Id == id);
         }
     }
 }

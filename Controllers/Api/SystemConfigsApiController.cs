@@ -12,27 +12,20 @@ namespace PhanMemCamDo.Controllers.Api
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class SystemConfigsApiController : ControllerBase
+    public class SystemConfigsApiController(PawnShopDbContext context) : ControllerBase
     {
-        private readonly PawnShopDbContext _context;
-
-        public SystemConfigsApiController(PawnShopDbContext context)
-        {
-            _context = context;
-        }
-
         // GET: api/SystemConfigsApi
         [HttpGet]
         public async Task<ActionResult<IEnumerable<SystemConfig>>> GetSystemConfigs()
         {
-            return await _context.SystemConfigs.ToListAsync();
+            return await context.SystemConfigs.ToListAsync();
         }
 
         // GET: api/SystemConfigsApi/5
         [HttpGet("{id}")]
         public async Task<ActionResult<SystemConfig>> GetSystemConfig(int id)
         {
-            var systemConfig = await _context.SystemConfigs.FindAsync(id);
+            var systemConfig = await context.SystemConfigs.FindAsync(id);
 
             if (systemConfig == null)
             {
@@ -52,11 +45,11 @@ namespace PhanMemCamDo.Controllers.Api
                 return BadRequest();
             }
 
-            _context.Entry(systemConfig).State = EntityState.Modified;
+            context.Entry(systemConfig).State = EntityState.Modified;
 
             try
             {
-                await _context.SaveChangesAsync();
+                await context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -78,8 +71,8 @@ namespace PhanMemCamDo.Controllers.Api
         [HttpPost]
         public async Task<ActionResult<SystemConfig>> PostSystemConfig(SystemConfig systemConfig)
         {
-            _context.SystemConfigs.Add(systemConfig);
-            await _context.SaveChangesAsync();
+            context.SystemConfigs.Add(systemConfig);
+            await context.SaveChangesAsync();
 
             return CreatedAtAction("GetSystemConfig", new { id = systemConfig.Id }, systemConfig);
         }
@@ -88,21 +81,21 @@ namespace PhanMemCamDo.Controllers.Api
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteSystemConfig(int id)
         {
-            var systemConfig = await _context.SystemConfigs.FindAsync(id);
+            var systemConfig = await context.SystemConfigs.FindAsync(id);
             if (systemConfig == null)
             {
                 return NotFound();
             }
 
-            _context.SystemConfigs.Remove(systemConfig);
-            await _context.SaveChangesAsync();
+            context.SystemConfigs.Remove(systemConfig);
+            await context.SaveChangesAsync();
 
             return NoContent();
         }
 
         private bool SystemConfigExists(int id)
         {
-            return _context.SystemConfigs.Any(e => e.Id == id);
+            return context.SystemConfigs.Any(e => e.Id == id);
         }
     }
 }

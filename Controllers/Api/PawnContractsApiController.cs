@@ -12,27 +12,20 @@ namespace PhanMemCamDo.Controllers.Api
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PawnContractsApiController : ControllerBase
+    public class PawnContractsApiController(PawnShopDbContext context) : ControllerBase
     {
-        private readonly PawnShopDbContext _context;
-
-        public PawnContractsApiController(PawnShopDbContext context)
-        {
-            _context = context;
-        }
-
         // GET: api/PawnContractsApi
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PawnContract>>> GetPawnContracts()
         {
-            return await _context.PawnContracts.ToListAsync();
+            return await context.PawnContracts.ToListAsync();
         }
 
         // GET: api/PawnContractsApi/5
         [HttpGet("{id}")]
         public async Task<ActionResult<PawnContract>> GetPawnContract(int id)
         {
-            var pawnContract = await _context.PawnContracts.FindAsync(id);
+            var pawnContract = await context.PawnContracts.FindAsync(id);
 
             if (pawnContract == null)
             {
@@ -52,11 +45,11 @@ namespace PhanMemCamDo.Controllers.Api
                 return BadRequest();
             }
 
-            _context.Entry(pawnContract).State = EntityState.Modified;
+            context.Entry(pawnContract).State = EntityState.Modified;
 
             try
             {
-                await _context.SaveChangesAsync();
+                await context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -78,8 +71,8 @@ namespace PhanMemCamDo.Controllers.Api
         [HttpPost]
         public async Task<ActionResult<PawnContract>> PostPawnContract(PawnContract pawnContract)
         {
-            _context.PawnContracts.Add(pawnContract);
-            await _context.SaveChangesAsync();
+            context.PawnContracts.Add(pawnContract);
+            await context.SaveChangesAsync();
 
             return CreatedAtAction("GetPawnContract", new { id = pawnContract.Id }, pawnContract);
         }
@@ -88,21 +81,21 @@ namespace PhanMemCamDo.Controllers.Api
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePawnContract(int id)
         {
-            var pawnContract = await _context.PawnContracts.FindAsync(id);
+            var pawnContract = await context.PawnContracts.FindAsync(id);
             if (pawnContract == null)
             {
                 return NotFound();
             }
 
-            _context.PawnContracts.Remove(pawnContract);
-            await _context.SaveChangesAsync();
+            context.PawnContracts.Remove(pawnContract);
+            await context.SaveChangesAsync();
 
             return NoContent();
         }
 
         private bool PawnContractExists(int id)
         {
-            return _context.PawnContracts.Any(e => e.Id == id);
+            return context.PawnContracts.Any(e => e.Id == id);
         }
     }
 }

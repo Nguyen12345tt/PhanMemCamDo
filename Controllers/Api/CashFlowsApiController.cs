@@ -12,27 +12,20 @@ namespace PhanMemCamDo.Controllers.Api
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CashFlowsApiController : ControllerBase
+    public class CashFlowsApiController(PawnShopDbContext context) : ControllerBase
     {
-        private readonly PawnShopDbContext _context;
-
-        public CashFlowsApiController(PawnShopDbContext context)
-        {
-            _context = context;
-        }
-
         // GET: api/CashFlowsApi
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CashFlow>>> GetCashFlows()
         {
-            return await _context.CashFlows.ToListAsync();
+            return await context.CashFlows.ToListAsync();
         }
 
         // GET: api/CashFlowsApi/5
         [HttpGet("{id}")]
         public async Task<ActionResult<CashFlow>> GetCashFlow(int id)
         {
-            var cashFlow = await _context.CashFlows.FindAsync(id);
+            var cashFlow = await context.CashFlows.FindAsync(id);
 
             if (cashFlow == null)
             {
@@ -52,11 +45,11 @@ namespace PhanMemCamDo.Controllers.Api
                 return BadRequest();
             }
 
-            _context.Entry(cashFlow).State = EntityState.Modified;
+            context.Entry(cashFlow).State = EntityState.Modified;
 
             try
             {
-                await _context.SaveChangesAsync();
+                await context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -78,8 +71,8 @@ namespace PhanMemCamDo.Controllers.Api
         [HttpPost]
         public async Task<ActionResult<CashFlow>> PostCashFlow(CashFlow cashFlow)
         {
-            _context.CashFlows.Add(cashFlow);
-            await _context.SaveChangesAsync();
+            context.CashFlows.Add(cashFlow);
+            await context.SaveChangesAsync();
 
             return CreatedAtAction("GetCashFlow", new { id = cashFlow.Id }, cashFlow);
         }
@@ -88,21 +81,21 @@ namespace PhanMemCamDo.Controllers.Api
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCashFlow(int id)
         {
-            var cashFlow = await _context.CashFlows.FindAsync(id);
+            var cashFlow = await context.CashFlows.FindAsync(id);
             if (cashFlow == null)
             {
                 return NotFound();
             }
 
-            _context.CashFlows.Remove(cashFlow);
-            await _context.SaveChangesAsync();
+            context.CashFlows.Remove(cashFlow);
+            await context.SaveChangesAsync();
 
             return NoContent();
         }
 
         private bool CashFlowExists(int id)
         {
-            return _context.CashFlows.Any(e => e.Id == id);
+            return context.CashFlows.Any(e => e.Id == id);
         }
     }
 }

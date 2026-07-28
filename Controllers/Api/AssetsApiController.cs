@@ -12,27 +12,20 @@ namespace PhanMemCamDo.Controllers.Api
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AssetsApiController : ControllerBase
+    public class AssetsApiController(PawnShopDbContext context) : ControllerBase
     {
-        private readonly PawnShopDbContext _context;
-
-        public AssetsApiController(PawnShopDbContext context)
-        {
-            _context = context;
-        }
-
         // GET: api/AssetsApi
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Asset>>> GetAssets()
         {
-            return await _context.Assets.ToListAsync();
+            return await context.Assets.ToListAsync();
         }
 
         // GET: api/AssetsApi/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Asset>> GetAsset(int id)
         {
-            var asset = await _context.Assets.FindAsync(id);
+            var asset = await context.Assets.FindAsync(id);
 
             if (asset == null)
             {
@@ -52,11 +45,11 @@ namespace PhanMemCamDo.Controllers.Api
                 return BadRequest();
             }
 
-            _context.Entry(asset).State = EntityState.Modified;
+            context.Entry(asset).State = EntityState.Modified;
 
             try
             {
-                await _context.SaveChangesAsync();
+                await context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -78,8 +71,8 @@ namespace PhanMemCamDo.Controllers.Api
         [HttpPost]
         public async Task<ActionResult<Asset>> PostAsset(Asset asset)
         {
-            _context.Assets.Add(asset);
-            await _context.SaveChangesAsync();
+            context.Assets.Add(asset);
+            await context.SaveChangesAsync();
 
             return CreatedAtAction("GetAsset", new { id = asset.Id }, asset);
         }
@@ -88,21 +81,21 @@ namespace PhanMemCamDo.Controllers.Api
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsset(int id)
         {
-            var asset = await _context.Assets.FindAsync(id);
+            var asset = await context.Assets.FindAsync(id);
             if (asset == null)
             {
                 return NotFound();
             }
 
-            _context.Assets.Remove(asset);
-            await _context.SaveChangesAsync();
+            context.Assets.Remove(asset);
+            await context.SaveChangesAsync();
 
             return NoContent();
         }
 
         private bool AssetExists(int id)
         {
-            return _context.Assets.Any(e => e.Id == id);
+            return context.Assets.Any(e => e.Id == id);
         }
     }
 }
