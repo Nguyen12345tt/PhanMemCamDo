@@ -27,10 +27,19 @@ namespace PhanMemCamDo.Controllers.Api
         {
             await AutoCheckContractNotifications();
 
-            var rawList = await context.Notifications
-                .OrderByDescending(n => n.CreatedDate)
-                .Take(20)
-                .ToListAsync();
+            // Ưu tiên lấy các thông báo chưa đọc, nếu không có thì lấy 5 thông báo gần nhất
+            var unreadQuery = context.Notifications.Where(n => !n.IsRead);
+            var unreadCount = await unreadQuery.CountAsync();
+
+            List<Notification> rawList;
+            if (unreadCount > 0)
+            {
+                rawList = await unreadQuery.OrderByDescending(n => n.CreatedDate).Take(20).ToListAsync();
+            }
+            else
+            {
+                rawList = await context.Notifications.OrderByDescending(n => n.CreatedDate).Take(5).ToListAsync();
+            }
 
             var unreadList = rawList.Select(n => {
                 string url = "/PawnContracts";
@@ -44,7 +53,6 @@ namespace PhanMemCamDo.Controllers.Api
                 }
                 else if (!string.IsNullOrEmpty(n.Title))
                 {
-                    // Tự rút mã HĐ từ tiêu đề (VD: "⚠️ Hợp đồng HD0002 đã quá hạn!")
                     var match = System.Text.RegularExpressions.Regex.Match(n.Title, @"HD\d+");
                     if (match.Success)
                     {
@@ -61,8 +69,6 @@ namespace PhanMemCamDo.Controllers.Api
                     CreatedDate = n.CreatedDate.ToString("dd/MM/yyyy HH:mm")
                 };
             }).ToList();
-
-            var unreadCount = await context.Notifications.CountAsync(n => !n.IsRead);
 
             return Ok(new {
                 unreadCount = unreadCount,
@@ -110,13 +116,20 @@ namespace PhanMemCamDo.Controllers.Api
             foreach (var item in overdueContracts)
             {
                 string title = $"⚠️ Hợp đồng {item.ContractCode} đã quá hạn!";
-                bool exists = await context.Notifications.AnyAsync(n => n.Title == title);
-                if (!exists)
+                string message = $"Hợp đồng {item.ContractCode} (Khách: {item.Customer?.FullName}) đã quá hạn từ ngày {item.EndDate:dd/MM/yyyy}. Cần xử lý đóng lãi hoặc thanh lý!";
+
+                var existing = await context.Notifications.FirstOrDefaultAsync(n => n.Title != null && n.Title.Contains(item.ContractCode));
+                if (existing != null)
+                {
+                    existing.Title = title;
+                    existing.Message = message;
+                }
+                else
                 {
                     context.Notifications.Add(new Notification
                     {
                         Title = title,
-                        Message = $"Hợp đồng {item.ContractCode} (Khách: {item.Customer?.FullName}) đã quá hạn từ ngày {item.EndDate:dd/MM/yyyy}. Cần xử lý đóng lãi hoặc thanh lý!",
+                        Message = message,
                         ContractId = item.Id,
                         Url = $"/PawnContracts/Details/{item.Id}",
                         IsRead = false,
@@ -136,14 +149,20 @@ namespace PhanMemCamDo.Controllers.Api
                 int daysLeft = (item.EndDate.Date - today).Days;
                 string dueStr = daysLeft == 0 ? "hôm nay" : $"sau {daysLeft} ngày nữa ({item.EndDate:dd/MM/yyyy})";
                 string title = $"⏰ Hợp đồng {item.ContractCode} sắp hết hạn ({dueStr})!";
-                
-                bool exists = await context.Notifications.AnyAsync(n => n.Title == title);
-                if (!exists)
+                string message = $"Hợp đồng {item.ContractCode} của khách hàng {item.Customer?.FullName} sẽ hết hạn {dueStr}. Vui lòng nhắc khách đóng lãi hoặc gia hạn!";
+
+                var existing = await context.Notifications.FirstOrDefaultAsync(n => n.Title != null && n.Title.Contains(item.ContractCode));
+                if (existing != null)
+                {
+                    existing.Title = title;
+                    existing.Message = message;
+                }
+                else
                 {
                     context.Notifications.Add(new Notification
                     {
                         Title = title,
-                        Message = $"Hợp đồng {item.ContractCode} của khách hàng {item.Customer?.FullName} sẽ hết hạn {dueStr}. Vui lòng nhắc khách đóng lãi hoặc gia hạn!",
+                        Message = message,
                         ContractId = item.Id,
                         Url = $"/PawnContracts/Details/{item.Id}",
                         IsRead = false,
@@ -152,17 +171,20 @@ namespace PhanMemCamDo.Controllers.Api
                 }
             }
 
-            // 3. Nếu chưa có thông báo nào trong hệ thống, tự động tạo 1 thông báo mẫu chào mừng
-            if (!await context.Notifications.AnyAsync())
+            // 3. Dọn dẹp các thông báo trùng lặp cũ của cùng một hợp đồng
+            var allNotifications = await context.Notifications.ToListAsync();
+            var grouped = allNotifications
+                .Where(n => !string.IsNullOrEmpty(n.Title))
+                .GroupBy(n => {
+                    var match = System.Text.RegularExpressions.Regex.Match(n.Title!, @"HD\d+");
+                    return match.Success ? match.Value : n.Title!;
+                })
+                .Where(g => g.Count() > 1);
+
+            foreach (var group in grouped)
             {
-                context.Notifications.Add(new Notification
-                {
-                    Title = "🎉 Chào mừng đến với Phần Mềm Cầm Đồ!",
-                    Message = "Hệ thống đã kích hoạt tính năng thông báo tự động. Các hợp đồng sắp hết hạn và quá hạn sẽ hiển thị tại đây.",
-                    Url = "/PawnContracts",
-                    IsRead = false,
-                    CreatedDate = now
-                });
+                var duplicates = group.OrderByDescending(n => n.CreatedDate).Skip(1);
+                context.Notifications.RemoveRange(duplicates);
             }
 
             await context.SaveChangesAsync();
