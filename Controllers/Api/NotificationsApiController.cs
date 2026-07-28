@@ -115,10 +115,11 @@ namespace PhanMemCamDo.Controllers.Api
 
             foreach (var item in overdueContracts)
             {
+                string code = item.ContractCode ?? "";
                 string title = $"⚠️ Hợp đồng {item.ContractCode} đã quá hạn!";
                 string message = $"Hợp đồng {item.ContractCode} (Khách: {item.Customer?.FullName}) đã quá hạn từ ngày {item.EndDate:dd/MM/yyyy}. Cần xử lý đóng lãi hoặc thanh lý!";
 
-                var existing = await context.Notifications.FirstOrDefaultAsync(n => n.Title != null && n.Title.Contains(item.ContractCode));
+                var existing = await context.Notifications.FirstOrDefaultAsync(n => n.Title != null && code != "" && n.Title.Contains(code));
                 if (existing != null)
                 {
                     existing.Title = title;
@@ -146,12 +147,13 @@ namespace PhanMemCamDo.Controllers.Api
 
             foreach (var item in dueSoonContracts)
             {
+                string code = item.ContractCode ?? "";
                 int daysLeft = (item.EndDate.Date - today).Days;
                 string dueStr = daysLeft == 0 ? "hôm nay" : $"sau {daysLeft} ngày nữa ({item.EndDate:dd/MM/yyyy})";
                 string title = $"⏰ Hợp đồng {item.ContractCode} sắp hết hạn ({dueStr})!";
                 string message = $"Hợp đồng {item.ContractCode} của khách hàng {item.Customer?.FullName} sẽ hết hạn {dueStr}. Vui lòng nhắc khách đóng lãi hoặc gia hạn!";
 
-                var existing = await context.Notifications.FirstOrDefaultAsync(n => n.Title != null && n.Title.Contains(item.ContractCode));
+                var existing = await context.Notifications.FirstOrDefaultAsync(n => n.Title != null && code != "" && n.Title.Contains(code));
                 if (existing != null)
                 {
                     existing.Title = title;
