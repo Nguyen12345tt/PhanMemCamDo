@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using PhanMemCamDo.Data;
 using PhanMemCamDo.Models.Entities;
 
-namespace PhanMemCamDo.Controllers_Api
+namespace PhanMemCamDo.Controllers.Api
 {
     [Route("api/[controller]")]
     [ApiController]
