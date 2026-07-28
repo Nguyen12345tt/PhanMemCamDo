@@ -54,17 +54,27 @@ dotnet restore
 
 ---
 
-### ▶️ Bước 5: Khởi Chạy Ứng Dụng (Run Project)
-Chạy lệnh khởi chạy dự án:
+### 🗄️ Bước 5: Khởi Tạo / Cập Nhật Database (Database Update)
+Hệ thống hỗ trợ 2 cách khởi tạo CSDL:
+
+* **Cách 1 (Mặc định - Tự Động)**: Hệ thống sử dụng `context.Database.EnsureCreated()` trong `DbInitializer.cs`. CSDL `PawnShopDB` cùng toàn bộ các bảng và dữ liệu mẫu sẽ **tự động được tạo ngay lần đầu khởi chạy** mà không bắt buộc phải gõ lệnh migration.
+* **Cách 2 (Thủ Công qua EF Core CLI)**: Nếu bạn muốn tự cập nhật CSDL bằng Migration:
+  ```bash
+  dotnet ef database update
+  ```
+  *(Lưu ý: Nếu máy bạn chưa cài đặt công cụ EF Core CLI, chạy lệnh `dotnet tool install --global dotnet-ef` để cài đặt).*
+
+---
+
+### ▶️ Bước 6: Khởi Chạy Ứng Dụng (Run Project)
+Chạy lệnh khởi chạy ứng dụng:
 ```bash
 dotnet run
 ```
 
-> 💡 **Lưu ý**: Lần đầu tiên ứng dụng khởi chạy, hệ thống sẽ **tự động khởi tạo Database `PawnShopDB`** cùng toàn bộ các bảng và dữ liệu mẫu (`EnsureCreated`). Bạn không cần chạy lệnh migration thủ công.
-
 ---
 
-### 🌐 Bước 6: Truy Cập Ứng Dụng
+### 🌐 Bước 7: Truy Cập Ứng Dụng
 Mở trình duyệt Web (Chrome, Edge, Firefox...) và truy cập vào đường dẫn:
 👉 **[http://localhost:5135](http://localhost:5135)**
 
