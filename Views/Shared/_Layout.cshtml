@@ -15,13 +15,13 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom shadow-sm mb-3 py-1">
+            <div class="container-fluid px-3">
                 @{
                     var currentStoreName = Context.Session.GetString("StoreName") ?? "Cầm Đồ Xịn";
                 }
-                <a class="navbar-brand fw-bold text-primary" asp-area="" asp-controller="Home" asp-action="Index">
-                    <i class="fa-solid fa-shop"></i> @currentStoreName
+                <a class="navbar-brand fw-bold text-primary py-1" asp-area="" asp-controller="Home" asp-action="Index">
+                    <i class="fa-solid fa-shop me-1"></i> @currentStoreName
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
@@ -29,38 +29,38 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
 
-                    <ul class="navbar-nav flex-grow-1">
+                    <ul class="navbar-nav flex-grow-1 align-items-center">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Home" asp-action="Index">Trang Chủ</a>
+                            <a class="nav-link text-dark py-1" asp-controller="Home" asp-action="Index">Trang Chủ</a>
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link text-dark fw-bold" asp-controller="Customers" asp-action="Index">Khách Hàng</a>
+                            <a class="nav-link text-dark fw-bold py-1" asp-controller="Customers" asp-action="Index">Khách Hàng</a>
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link text-dark fw-bold" asp-controller="Assets" asp-action="Index">Kho Tài Sản</a>
+                            <a class="nav-link text-dark fw-bold py-1" asp-controller="Assets" asp-action="Index">Kho Tài Sản</a>
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link text-dark fw-bold" asp-controller="PawnContracts" asp-action="Index">Hợp Đồng</a>
+                            <a class="nav-link text-dark fw-bold py-1" asp-controller="PawnContracts" asp-action="Index">Hợp Đồng</a>
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link text-dark fw-bold" asp-controller="PaymentHistories" asp-action="Index">Sổ Quỹ</a>
+                            <a class="nav-link text-dark fw-bold py-1" asp-controller="PaymentHistories" asp-action="Index">Sổ Quỹ</a>
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link text-primary fw-bold" asp-controller="Reports" asp-action="Index">
-                                <i class="fa-solid fa-chart-pie"></i> Báo Cáo
+                            <a class="nav-link text-primary fw-bold py-1" asp-controller="Reports" asp-action="Index">
+                                <i class="fa-solid fa-chart-pie me-1"></i> Báo Cáo
                             </a>
                         </li>
 
                         @if (Context.Session.GetString("Role") == "Admin")
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-secondary fw-bold" asp-controller="SystemConfigs" asp-action="Index">
-                                    <i class="fa-solid fa-gear"></i> Cấu Hình
+                                <a class="nav-link text-secondary fw-bold py-1" asp-controller="SystemConfigs" asp-action="Index">
+                                    <i class="fa-solid fa-gear me-1"></i> Cấu Hình
                                 </a>
                             </li>
                         }
@@ -68,10 +68,10 @@
 
 <ul class="navbar-nav ms-auto align-items-center">
     <!-- Nút Thông Báo (Bell Icon 🔔) - Hiển thị luôn trên Navbar -->
-    <li class="nav-item dropdown me-3">
-        <a class="nav-link position-relative text-dark fs-5 p-2" href="#" id="notifDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" onclick="LoadNotifications()">
-            <i class="fa-solid fa-bell text-warning"></i>
-            <span id="notifBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display:none; font-size: 0.65rem;">
+    <li class="nav-item dropdown me-2">
+        <a class="nav-link position-relative text-dark p-1" href="#" id="notifDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" onclick="LoadNotifications()">
+            <i class="fa-solid fa-bell text-warning fs-5"></i>
+            <span id="notifBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display:none; font-size: 0.6rem;">
                 0
             </span>
         </a>
@@ -92,20 +92,20 @@
         var fullName = Context.Session.GetString("FullName") ?? username;
         var userRole = Context.Session.GetString("Role") ?? "Staff";
         var isOwner = userRole == "Admin";
-        var roleTitle = isOwner ? "👑 Chủ Cửa Hàng" : "👤 Nhân Viên";
+        var roleTitle = isOwner ? "Chủ Cửa Hàng" : "Nhân Viên";
         var roleBadgeClass = isOwner ? "bg-warning text-dark fw-bold" : "bg-secondary text-white";
     }
 
     @if (string.IsNullOrEmpty(username))
     {
         <li class="nav-item">
-            <a class="nav-link text-primary" asp-controller="Account" asp-action="Register">
-                <i class="fa-solid fa-user-plus"></i> Đăng Ký
+            <a class="nav-link text-primary py-1" asp-controller="Account" asp-action="Register">
+                <i class="fa-solid fa-user-plus me-1"></i> Đăng Ký
             </a>
         </li>
         <li class="nav-item">
-            <a class="btn btn-primary text-white btn-sm ms-2 shadow-sm" asp-controller="Account" asp-action="Login">
-                <i class="fa-solid fa-right-to-bracket"></i> Đăng Nhập
+            <a class="btn btn-primary text-white btn-sm ms-2 shadow-sm py-1" asp-controller="Account" asp-action="Login">
+                <i class="fa-solid fa-right-to-bracket me-1"></i> Đăng Nhập
             </a>
         </li>
     }
@@ -114,13 +114,12 @@
         var firstLetter = !string.IsNullOrEmpty(fullName) ? fullName.Substring(0, 1).ToUpper() : "U";
 
         <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <div class="user-avatar shadow-sm">@firstLetter</div>
+            <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 py-1" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <div class="user-avatar shadow-sm" style="width: 30px; height: 30px; font-size: 0.9rem;">@firstLetter</div>
                 
-                <div class="d-none d-lg-block">
-                    <span class="fw-bold text-dark">@fullName</span>
-                    <br>
-                    <span class="badge @roleBadgeClass" style="font-size: 0.65rem;">@roleTitle</span>
+                <div class="d-none d-lg-flex align-items-center gap-1">
+                    <span class="fw-bold text-dark small">@fullName</span>
+                    <span class="badge @roleBadgeClass ms-1" style="font-size: 0.6rem; padding: 3px 6px;">@roleTitle</span>
                 </div>
             </a>
             
